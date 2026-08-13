@@ -11,7 +11,7 @@ const TRADUCCIONES = {
     "nav.registro": "Crear cuenta",
     "nav.salir": "Salir",
 
-    "hero.titulo": "Viaja cómodo y seguro con TransRápido",
+    "hero.titulo": "Viaja cómodo y seguro con Andesbus",
     "hero.texto": "Los mejores buses, las rutas más transitadas y precios que se adaptan a tu bolsillo. Reserva tu viaje en minutos.",
     "hero.boton": "Buscar mi ruta",
 
@@ -32,7 +32,7 @@ const TRADUCCIONES = {
     "index.r3": "Arequipa → Cusco",
     "index.r3d": "Desde S/ 75. Salidas cada hora.",
 
-    "footer.copy": "© 2026 TransRápido - Todos los derechos reservados",
+    "footer.copy": "© 2026 Andesbus - Todos los derechos reservados",
     "footer.contactanos": "Contáctanos",
     "footer.registrate": "Regístrate",
     "footer.login": "Iniciar sesión",
@@ -108,7 +108,6 @@ const TRADUCCIONES = {
     "reservas.leyDisp": "Disponible",
     "reservas.leySel": "Seleccionado",
     "reservas.leyOcup": "Ocupado",
-    "reservas.leyEsc": "Escaleras",
     "reservas.errAsientos": "Selecciona un asiento por pasajero.",
     "reservas.pasajerosLabel": "Número de pasajeros",
     "reservas.pasajero1": "1 pasajero",
@@ -176,7 +175,7 @@ const TRADUCCIONES = {
     "contacto.errMensaje": "Escribe tu mensaje (mínimo 10 caracteres).",
     "contacto.exito": "¡Gracias {nombre}! Recibimos tu mensaje y te responderemos pronto.",
 
-    "nosotros.titulo": "Conoce TransRápido",
+    "nosotros.titulo": "Conoce Andesbus",
     "nosotros.sub": "Más de 20 años conectando familias y viajeros por todo el país.",
     "nosotros.mision": "🎯 Nuestra misión",
     "nosotros.misionTexto": "Ofrecer transporte terrestre seguro, puntual y cómodo, acercando a las personas con sus seres queridos y destinos de manera accesible para todos.",
@@ -223,7 +222,7 @@ const TRADUCCIONES = {
     "nav.registro": "Sign up",
     "nav.salir": "Log out",
 
-    "hero.titulo": "Travel comfortable and safe with TransRápido",
+    "hero.titulo": "Travel comfortable and safe with Andesbus",
     "hero.texto": "The best buses, the most popular routes and prices that fit your pocket. Book your trip in minutes.",
     "hero.boton": "Find my route",
 
@@ -244,7 +243,7 @@ const TRADUCCIONES = {
     "index.r3": "Arequipa → Cusco",
     "index.r3d": "From S/ 75. Departures every hour.",
 
-    "footer.copy": "© 2026 TransRápido - All rights reserved",
+    "footer.copy": "© 2026 Andesbus - All rights reserved",
     "footer.contactanos": "Contact us",
     "footer.registrate": "Sign up",
     "footer.login": "Log in",
@@ -320,7 +319,6 @@ const TRADUCCIONES = {
     "reservas.leyDisp": "Available",
     "reservas.leySel": "Selected",
     "reservas.leyOcup": "Occupied",
-    "reservas.leyEsc": "Stairs",
     "reservas.errAsientos": "Select one seat per passenger.",
     "reservas.pasajerosLabel": "Number of passengers",
     "reservas.pasajero1": "1 passenger",
@@ -388,7 +386,7 @@ const TRADUCCIONES = {
     "contacto.errMensaje": "Write your message (at least 10 characters).",
     "contacto.exito": "Thank you {nombre}! We received your message and will reply soon.",
 
-    "nosotros.titulo": "Meet TransRápido",
+    "nosotros.titulo": "Meet Andesbus",
     "nosotros.sub": "More than 20 years connecting families and travelers across the country.",
     "nosotros.mision": "🎯 Our mission",
     "nosotros.misionTexto": "To offer safe, punctual and comfortable land transportation, bringing people closer to their loved ones and destinations in an accessible way for everyone.",

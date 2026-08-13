@@ -73,7 +73,6 @@ document.addEventListener("DOMContentLoaded", function () {
             '<span><span class="muestra-asiento"></span> ' + t("reservas.leyDisp") + '</span>' +
             '<span><span class="muestra-asiento seleccionada"></span> ' + t("reservas.leySel") + '</span>' +
             '<span><span class="muestra-asiento ocupada"></span> ' + t("reservas.leyOcup") + '</span>' +
-            '<span><span class="muestra-asiento escalera"></span> ' + t("reservas.leyEsc") + '</span>' +
           '</div>' +
         '</div>' +
         '<div class="mensaje-error" id="error-asientos">' + t("reservas.errAsientos") + '</div>' +
@@ -247,7 +246,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function crearEscaleraLateral() {
     const escalera = document.createElement("div");
     escalera.className = "escalera-lateral";
-    escalera.innerHTML = "🪜 " + t("reservas.leyEsc");
+    escalera.innerHTML = "";
     escalera.title = "Escaleras de subida al piso 2";
     return escalera;
   }

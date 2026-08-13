@@ -8,40 +8,51 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  const enlaceLogin = document.getElementById("enlace-login");
-  const enlaceSalir = document.getElementById("enlace-salir");
   const enlaceReserva = document.getElementById("enlace-reserva");
-  const sesion = obtenerSesion();
-
-  if (sesion) {
-    if (enlaceLogin) {
-      const partes = sesion.nombre.split(" ");
-      const nombreCorto = partes[0];
-      enlaceLogin.innerHTML =
-        t("cuenta.hola") + ", " + nombreCorto.charAt(0).toUpperCase() + nombreCorto.slice(1);
-      enlaceLogin.href = "cuenta.html";
-    }
-    if (enlaceSalir) {
-      enlaceSalir.style.display = "inline-block";
-      enlaceSalir.addEventListener("click", function (e) {
-        e.preventDefault();
-        cerrarSesion();
-      });
-    }
-  }
 
   if (enlaceReserva) {
     enlaceReserva.addEventListener("click", function (e) {
       if (!usuarioAutenticado()) {
         e.preventDefault();
-        window.location.href = "login.html";
+        window.location.href = rutaLogin();
       }
     });
   }
 
   crearElementosFlotantes();
   aplicarIdioma();
+  aplicarSesionUI();
 });
+
+function aplicarSesionUI() {
+  const enlaceLogin = document.getElementById("enlace-login");
+  const enlaceSalir = document.getElementById("enlace-salir");
+  const enlaceRegistro = document.getElementById("enlace-registro");
+  const sesion = obtenerSesion();
+
+  if (!sesion) return;
+
+  if (enlaceLogin) {
+    const partes = sesion.nombre.split(" ");
+    const nombreCorto = partes[0];
+    enlaceLogin.innerHTML =
+      t("cuenta.hola") + ", " + nombreCorto.charAt(0).toUpperCase() + nombreCorto.slice(1);
+    enlaceLogin.href = "cuenta.html";
+    enlaceLogin.removeAttribute("data-i18n");
+  }
+
+  if (enlaceRegistro) {
+    enlaceRegistro.style.display = "none";
+  }
+
+  if (enlaceSalir) {
+    enlaceSalir.style.display = "inline-block";
+    enlaceSalir.addEventListener("click", function (e) {
+      e.preventDefault();
+      cerrarSesion();
+    });
+  }
+}
 
 function crearElementosFlotantes() {
   const iconoWhatsApp =
@@ -107,7 +118,7 @@ function crearElementosFlotantes() {
       '</div>' +
       '<button class="btn btn-secundario btn-bloque" id="acc-reset">Restablecer</button>' +
     '</div>' +
-    '<a class="btn-flotante btn-wsp" href="https://wa.me/51987654321?text=Hola%20TransR%C3%A1pido%2C%20quiero%20informaci%C3%B3n%20sobre%20sus%20viajes" target="_blank" rel="noopener" aria-label="WhatsApp">' + iconoWhatsApp + '</a>' +
+    '<a class="btn-flotante btn-wsp" href="https://wa.me/51987654321?text=Hola%20Andesbus%2C%20quiero%20informaci%C3%B3n%20sobre%20sus%20viajes" target="_blank" rel="noopener" aria-label="WhatsApp">' + iconoWhatsApp + '</a>' +
     '<button class="btn-flotante btn-acc" id="btn-acc" aria-label="Accesibilidad">♿</button>';
 
   document.body.appendChild(contenedor);

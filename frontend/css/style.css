@@ -70,7 +70,9 @@ img {
 }
 
 .logo-icon {
-  font-size: 1.6rem;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
   transition: transform 0.3s;
 }
 
