@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const listaCiudades = document.getElementById("lista-ciudades");
   const resultados = document.getElementById("resultados");
 
-  const ciudades = VIAJES.reduce(function (acc, viaje) {
+  const ciudades = todosLosViajes().reduce(function (acc, viaje) {
     [viaje.origen, viaje.destino].forEach(function (ciudad) {
       if (acc.indexOf(ciudad) === -1) acc.push(ciudad);
     });
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const origen = normalizar(origenInput.value);
     const destino = normalizar(destinoInput.value);
 
-    const lista = VIAJES.filter(function (viaje) {
+    const lista = todosLosViajes().filter(function (viaje) {
       const cumpleOrigen = !origen || normalizar(viaje.origen) === origen;
       const cumpleDestino = !destino || normalizar(viaje.destino) === destino;
       return cumpleOrigen && cumpleDestino;
@@ -64,5 +64,5 @@ document.addEventListener("DOMContentLoaded", function () {
     filtrar();
   });
 
-  mostrarViajes(VIAJES);
+  mostrarViajes(todosLosViajes());
 });

@@ -72,6 +72,7 @@ const TRADUCCIONES = {
     "reg.errPass": "La contraseña debe tener al menos 6 caracteres.",
     "reg.errConfirmar": "Las contraseñas no coinciden.",
     "reg.existe": "Ya existe una cuenta con ese correo.",
+    "reg.emailPersonal": "Los correos @personal.pe son exclusivos del personal. No puedes registrarte con ellos.",
     "reg.exito": "¡Cuenta creada! Redirigiendo...",
 
     "rutas.titulo": "Rutas y horarios",
@@ -286,6 +287,7 @@ const TRADUCCIONES = {
     "reg.errPass": "Password must be at least 6 characters.",
     "reg.errConfirmar": "Passwords do not match.",
     "reg.existe": "An account with that email already exists.",
+    "reg.emailPersonal": "@personal.pe emails are exclusive to staff. You cannot register with them.",
     "reg.exito": "Account created! Redirecting...",
 
     "rutas.titulo": "Routes & schedules",

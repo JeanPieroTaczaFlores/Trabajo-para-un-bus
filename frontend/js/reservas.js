@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const parametros = new URLSearchParams(window.location.search);
   const viajeId = parseInt(parametros.get("viaje"), 10);
-  const viaje = VIAJES.find(function (v) { return v.id === viajeId; });
+  const viaje = todosLosViajes().find(function (v) { return v.id === viajeId; });
 
   if (!viaje) {
     cajaReserva.innerHTML =

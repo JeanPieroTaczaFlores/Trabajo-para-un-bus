@@ -15,6 +15,24 @@ const VIAJES = [
 
 const RESERVAS_KEY = "busEmpresa_reservas";
 
+const VIAJES_PERSONAL_KEY = "busEmpresa_viajes_personal";
+
+function obtenerViajesPersonal() {
+  try {
+    return JSON.parse(localStorage.getItem(VIAJES_PERSONAL_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function guardarViajesPersonal(viajes) {
+  localStorage.setItem(VIAJES_PERSONAL_KEY, JSON.stringify(viajes));
+}
+
+function todosLosViajes() {
+  return VIAJES.concat(obtenerViajesPersonal());
+}
+
 const PISO1_ASIENTOS = 20;
 const PISO1_MULTIPLICADOR = 1.5;
 
