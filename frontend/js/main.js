@@ -1,28 +1,26 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const menuToggle = document.querySelector(".menu-toggle");
-  const navLinks = document.querySelector(".nav-links");
+const menuToggle = document.querySelector(".menu-toggle");
+const navLinks = document.querySelector(".nav-links");
 
-  if (menuToggle && navLinks) {
-    menuToggle.addEventListener("click", function () {
-      navLinks.classList.toggle("abierto");
-    });
-  }
+if (menuToggle && navLinks) {
+  menuToggle.addEventListener("click", function () {
+    navLinks.classList.toggle("abierto");
+  });
+}
 
-  const enlaceReserva = document.getElementById("enlace-reserva");
+const enlaceReserva = document.getElementById("enlace-reserva");
 
-  if (enlaceReserva) {
-    enlaceReserva.addEventListener("click", function (e) {
-      if (!usuarioAutenticado()) {
-        e.preventDefault();
-        window.location.href = rutaLogin();
-      }
-    });
-  }
+if (enlaceReserva) {
+  enlaceReserva.addEventListener("click", function (e) {
+    if (!usuarioAutenticado()) {
+      e.preventDefault();
+      window.location.href = rutaLogin();
+    }
+  });
+}
 
-  crearElementosFlotantes();
-  aplicarIdioma();
-  aplicarSesionUI();
-});
+crearElementosFlotantes();
+aplicarIdioma();
+aplicarSesionUI();
 
 function aplicarSesionUI() {
   const enlaceLogin = document.getElementById("enlace-login");

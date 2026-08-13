@@ -454,6 +454,43 @@ img {
   margin-top: 4px;
 }
 
+.servicios-bus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 4px;
+  background: var(--azul);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.servicio {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--blanco);
+  font-size: 0.78rem;
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+.modo-noche .servicios-bus {
+  background: var(--azul-oscuro);
+}
+
+.modo-noche .asiento-premium {
+  border-color: #9fc0ea;
+  background: #1e293b;
+}
+
+.alto-contraste .servicio {
+  background: #ffd54a;
+  color: #000000;
+}
+
+.alto-contraste .asiento-premium {
+  border-color: #000000;
+  background: #ffffff;
+}
+
 .viaje-precio {
   font-size: 1.3rem;
   font-weight: 700;
@@ -607,10 +644,31 @@ footer a:hover {
   font-weight: 600;
   cursor: pointer;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 2px;
   transition: background 0.15s, border-color 0.15s, transform 0.1s;
   font-family: inherit;
+}
+
+.asiento .num {
+  line-height: 1;
+}
+
+.servicios-asiento {
+  font-size: 7px;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.asiento-premium {
+  border-color: #9fc0ea;
+  background: #eef4ff;
+}
+
+.asiento-premium:not(.ocupado):not(.seleccionado):hover {
+  border-color: var(--azul);
 }
 
 .asiento:hover:not(.ocupado) {

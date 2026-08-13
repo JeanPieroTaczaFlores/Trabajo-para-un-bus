@@ -34,23 +34,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function textoPasajeros(n) {
-    return n === 1 ? t("reservas.pasajero1") : t("reservas.pasajeros", { n: n });
-  }
-
-  function opcionesPasajeros() {
-    let opciones = "";
-    for (let i = 1; i <= 8; i++) {
-      opciones += '<option value="' + i + '">' + textoPasajeros(i) + '</option>';
-    }
-    return opciones;
-  }
-
   cajaReserva.classList.add("caja-ancha");
   cajaReserva.innerHTML =
     '<h2>' + viaje.origen + ' → ' + viaje.destino + '</h2>' +
     '<p class="subtitulo">' + t("reservas.salida") + ' ' + viaje.hora + ' · ' + t("reservas.duracion") + ' ' + viaje.duracion + '</p>' +
     '<div class="viaje-info">' + t("reservas.piso1") + PRECIO_PISO1.toFixed(2) + ' · ' + t("reservas.piso2") + viaje.precio.toFixed(2) + '</div>' +
+    '<div class="servicios-bus">' +
+      '<span class="servicio">🖥️ ' + t("reservas.svcPantalla") + '</span>' +
+      '<span class="servicio">🔌 ' + t("reservas.svcCargador") + '</span>' +
+      '<span class="servicio">📶 ' + t("reservas.svcWifi") + '</span>' +
+      '<span class="servicio">❄️ ' + t("reservas.svcAire") + '</span>' +
+      '<span class="servicio">🛋️ ' + t("reservas.svcReclinable") + '</span>' +
+      '<span class="servicio">☕ ' + t("reservas.svcSnack") + '</span>' +
+      '<span class="servicio">🧻 ' + t("reservas.svcBano") + '</span>' +
+    '</div>' +
     '<div class="alert alert-error" id="alerta"></div>' +
     '<form id="form-reserva" novalidate>' +
       '<div class="form-grupo">' +
@@ -76,11 +73,6 @@ document.addEventListener("DOMContentLoaded", function () {
           '</div>' +
         '</div>' +
         '<div class="mensaje-error" id="error-asientos">' + t("reservas.errAsientos") + '</div>' +
-      '</div>' +
-      '<div class="form-grupo">' +
-        '<label for="pasajeros">' + t("reservas.pasajerosLabel") + '</label>' +
-        '<select id="pasajeros">' + opcionesPasajeros() + '</select>' +
-        '<div class="nota-aviso" id="nota-familia">' + t("reservas.familiaNota") + '</div>' +
       '</div>' +
       '<div class="form-grupo">' +
         '<label>' + t("reservas.pagoLabel") + '</label>' +
@@ -124,6 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
       '<div class="form-grupo">' +
         '<label>' + t("reservas.totalLabel") + '</label>' +
         '<div class="viaje-precio" id="total">S/ 0.00</div>' +
+        '<div class="nota-aviso" id="nota-familia">' + t("reservas.familiaNota") + '</div>' +
       '</div>' +
       '<button type="submit" class="btn btn-primario btn-bloque">' + t("reservas.confirmar") + '</button>' +
       '<div class="ticket-info">' + t("reservas.ticket") + '</div>' +
@@ -134,7 +127,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const errorFecha = document.getElementById("error-fecha");
   const errorAsientos = document.getElementById("error-asientos");
   const errorPago = document.getElementById("error-pago");
-  const selectPasajeros = document.getElementById("pasajeros");
   const total = document.getElementById("total");
   const datosTarjeta = document.getElementById("datos-tarjeta");
   const notaEfectivo = document.getElementById("nota-efectivo");
@@ -148,12 +140,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const asientosSeleccionados = [];
   let pagoSeleccionado = "";
 
-  function cantidadPasajeros() {
-    return parseInt(selectPasajeros.value, 10);
-  }
-
   function planFamiliarActivo() {
-    return cantidadPasajeros() >= 6;
+    return asientosSeleccionados.length >= 6;
   }
 
   function actualizarTotal() {
@@ -169,10 +157,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function agregarAsiento(numero) {
-    if (asientosSeleccionados.length >= cantidadPasajeros()) return;
     asientosSeleccionados.push(numero);
     asientos[numero].classList.add("seleccionado");
-    asientos[numero].disabled = true;
     actualizarTotal();
   }
 
@@ -199,11 +185,16 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function crearBotonAsiento(numero, ocupados) {
+    const premium = pisoDeAsiento(numero) === 1;
     const boton = document.createElement("button");
     boton.type = "button";
-    boton.className = "asiento";
-    boton.textContent = numero;
-    boton.title = "Asiento " + numero + " · Piso " + pisoDeAsiento(numero);
+    boton.className = "asiento" + (premium ? " asiento-premium" : "");
+    boton.innerHTML =
+      '<span class="num">' + numero + '</span>' +
+      '<span class="servicios-asiento">' + (premium ? "🖥️🔌" : "🔌") + '</span>';
+    boton.title = premium
+      ? "Asiento " + numero + " · Piso 1 · Pantalla individual, cargador USB, reclinable"
+      : "Asiento " + numero + " · Piso 2 · Cargador USB, reclinable";
 
     if (ocupados[numero]) {
       boton.classList.add("ocupado");
@@ -213,13 +204,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (boton.classList.contains("seleccionado")) {
           quitarAsiento(numero);
         } else {
-          if (asientosSeleccionados.length >= cantidadPasajeros()) {
-            alerta.classList.remove("alert-exito");
-            alerta.classList.add("alert-error");
-            alerta.textContent = t("reservas.soloAsientos", { n: cantidadPasajeros() });
-            alerta.classList.add("visible");
-            return;
-          }
           agregarAsiento(numero);
         }
       });
@@ -300,16 +284,6 @@ document.addEventListener("DOMContentLoaded", function () {
     fechaInput.style.borderColor = "";
     asientosSeleccionados.forEach(quitarAsiento);
     dibujarPlano(ocupadosEnFecha());
-  });
-
-  selectPasajeros.addEventListener("change", function () {
-    while (asientosSeleccionados.length > cantidadPasajeros()) {
-      quitarAsiento(asientosSeleccionados[asientosSeleccionados.length - 1]);
-    }
-    if (asientosSeleccionados.length === cantidadPasajeros()) {
-      alerta.classList.remove("visible");
-    }
-    actualizarTotal();
   });
 
   document.querySelectorAll(".metodo-item").forEach(function (item) {
