@@ -22,6 +22,9 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
+  const TOTAL_ASIENTOS = 60;
+  const precioPiso1 = viaje.precio * PISO1_MULTIPLICADOR;
+
   function obtenerReservas() {
     try {
       return JSON.parse(localStorage.getItem(RESERVAS_KEY)) || [];
@@ -33,7 +36,8 @@ document.addEventListener("DOMContentLoaded", function () {
   cajaReserva.classList.add("caja-ancha");
   cajaReserva.innerHTML =
     '<h2>' + viaje.origen + ' → ' + viaje.destino + '</h2>' +
-    '<p class="subtitulo">Salida ' + viaje.hora + ' · Duración ' + viaje.duracion + ' · Precio por persona S/ ' + viaje.precio.toFixed(2) + '</p>' +
+    '<p class="subtitulo">Salida ' + viaje.hora + ' · Duración ' + viaje.duracion + '</p>' +
+    '<div class="viaje-info">Piso 1 (premium): S/ ' + precioPiso1.toFixed(2) + ' · Piso 2: S/ ' + viaje.precio.toFixed(2) + '</div>' +
     '<div class="alert alert-error" id="alerta"></div>' +
     '<form id="form-reserva" novalidate>' +
       '<div class="form-grupo">' +
@@ -45,17 +49,18 @@ document.addEventListener("DOMContentLoaded", function () {
         '<label>Elige tus asientos en el bus</label>' +
         '<div class="plano-bus">' +
           '<div class="piso">' +
-            '<div class="piso-titulo"><span>PISO 1</span><span>Asientos 1 - 40</span></div>' +
+            '<div class="piso-titulo"><span>PISO 1 · PREMIUM</span><span>Asientos 1 - 20 · S/ ' + precioPiso1.toFixed(2) + '</span></div>' +
             '<div id="plano-piso1"></div>' +
           '</div>' +
           '<div class="piso">' +
-            '<div class="piso-titulo"><span>PISO 2</span><span>Asientos 41 - 64</span></div>' +
+            '<div class="piso-titulo"><span>PISO 2 · ECONÓMICO</span><span>Asientos 21 - ' + TOTAL_ASIENTOS + ' · S/ ' + viaje.precio.toFixed(2) + '</span></div>' +
             '<div id="plano-piso2"></div>' +
           '</div>' +
           '<div class="leyenda">' +
             '<span><span class="muestra-asiento"></span> Disponible</span>' +
             '<span><span class="muestra-asiento seleccionada"></span> Seleccionado</span>' +
             '<span><span class="muestra-asiento ocupada"></span> Ocupado</span>' +
+            '<span><span class="muestra-asiento escalera"></span> Escaleras</span>' +
           '</div>' +
         '</div>' +
         '<div class="mensaje-error" id="error-asientos">Selecciona un asiento por pasajero.</div>' +
@@ -105,6 +110,9 @@ document.addEventListener("DOMContentLoaded", function () {
             '</div>' +
           '</div>' +
         '</div>' +
+        '<div class="nota-aviso" id="nota-efectivo">' +
+          '⚠️ <strong>Pago en efectivo:</strong> acércate al terminal en un plazo de <strong>6 horas</strong> desde tu reserva para que el personal confirme tu pago. Si no lo haces, tu(s) asiento(s) quedarán <strong>disponibles para otro pasajero</strong>.' +
+        '</div>' +
         '<div class="mensaje-error" id="error-pago">Selecciona un método de pago.</div>' +
       '</div>' +
       '<div class="form-grupo">' +
@@ -112,8 +120,10 @@ document.addEventListener("DOMContentLoaded", function () {
         '<div class="viaje-precio" id="total">S/ 0.00</div>' +
       '</div>' +
       '<button type="submit" class="btn btn-primario btn-bloque">Confirmar reserva</button>' +
-    '</form>' +
-    '<p class="texto-centro mt-16" style="font-size:0.85rem;color:var(--gris);">El pago se confirma en terminales y agencias autorizadas.</p>';
+      '<div class="ticket-info">' +
+        '🎫 <strong>Al momento de viajar:</strong> acércate a la ventanilla <strong>30 minutos antes de la salida</strong> para recoger tu ticket y presenta tu <strong>DNI</strong>.' +
+      '</div>' +
+    '</form>';
 
   const fechaInput = document.getElementById("fecha-viaje");
   const alerta = document.getElementById("alerta");
@@ -123,6 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const selectPasajeros = document.getElementById("pasajeros");
   const total = document.getElementById("total");
   const datosTarjeta = document.getElementById("datos-tarjeta");
+  const notaEfectivo = document.getElementById("nota-efectivo");
 
   const hoy = new Date();
   hoy.setDate(hoy.getDate() + 1);
@@ -137,17 +148,18 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function actualizarTotal() {
-    const cantidad = asientosSeleccionados.length;
-    total.textContent = "S/ " + (viaje.precio * cantidad).toFixed(2);
+    let suma = 0;
+    asientosSeleccionados.forEach(function (numero) {
+      suma += precioAsiento(viaje, numero);
+    });
+    total.textContent = "S/ " + suma.toFixed(2);
   }
 
   function agregarAsiento(numero) {
     if (asientosSeleccionados.length >= cantidadPasajeros()) return;
     asientosSeleccionados.push(numero);
-    const boton = asientos[numero];
-    boton.classList.remove("seleccionado");
-    boton.classList.add("seleccionado");
-    boton.disabled = true;
+    asientos[numero].classList.add("seleccionado");
+    asientos[numero].disabled = true;
     actualizarTotal();
   }
 
@@ -162,10 +174,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function ocupadosEnFecha() {
     const fecha = fechaInput.value;
-    const reservas = obtenerReservas();
     const ocupados = {};
-    reservas.forEach(function (r) {
-      if (r.viajeId === viaje.id && r.fecha === fecha) {
+    obtenerReservas().forEach(function (r) {
+      if (r.viajeId === viaje.id && r.fecha === fecha && r.estado !== "Liberado") {
         (r.asiento || []).forEach(function (asiento) {
           ocupados[asiento] = true;
         });
@@ -187,7 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
       boton.type = "button";
       boton.className = "asiento";
       boton.textContent = numero;
-      boton.title = "Asiento " + numero;
+      boton.title = "Asiento " + numero + " · Piso " + pisoDeAsiento(numero);
 
       if (ocupados[numero]) {
         boton.classList.add("ocupado");
@@ -230,12 +241,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let numero = 1;
 
-    for (let fila = 1; fila <= 10; fila++) {
+    for (let fila = 1; fila <= 5; fila++) {
       piso1.appendChild(crearFila([numero, numero + 1, numero + 2, numero + 3], ocupados));
       numero += 4;
     }
 
-    for (let fila = 1; fila <= 4; fila++) {
+    for (let fila = 1; fila <= 5; fila++) {
       piso2.appendChild(crearFila([numero, numero + 1, numero + 2, numero + 3], ocupados));
       numero += 4;
     }
@@ -243,7 +254,7 @@ document.addEventListener("DOMContentLoaded", function () {
     piso2.appendChild(crearEscalera());
     piso2.appendChild(crearEscalera());
 
-    for (let fila = 1; fila <= 2; fila++) {
+    for (let fila = 1; fila <= 5; fila++) {
       piso2.appendChild(crearFila([numero, numero + 1, numero + 2, numero + 3], ocupados));
       numero += 4;
     }
@@ -278,6 +289,7 @@ document.addEventListener("DOMContentLoaded", function () {
       pagoSeleccionado = item.getAttribute("data-pago");
       errorPago.classList.remove("visible");
       datosTarjeta.classList.toggle("visible", pagoSeleccionado === "tarjeta");
+      notaEfectivo.classList.toggle("visible", pagoSeleccionado === "efectivo");
     });
   });
 
@@ -340,6 +352,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const sesion = obtenerSesion();
     const cantidad = asientosSeleccionados.length;
     const asientosOrdenados = asientosSeleccionados.slice().sort(function (a, b) { return a - b; });
+    let totalPagar = 0;
+    asientosOrdenados.forEach(function (numero) {
+      totalPagar += precioAsiento(viaje, numero);
+    });
+
+    const pendienteEfectivo = pagoSeleccionado === "efectivo";
 
     const reserva = {
       id: Date.now(),
@@ -352,18 +370,32 @@ document.addEventListener("DOMContentLoaded", function () {
       fecha: fecha,
       asiento: asientosOrdenados,
       pasajeros: cantidad,
-      total: viaje.precio * cantidad,
+      total: totalPagar,
       metodoPago: pagoSeleccionado,
-      estado: "Confirmada"
+      estado: pendienteEfectivo ? "Pendiente de confirmación" : "Confirmada",
+      fechaReserva: new Date().toISOString()
     };
 
     const reservas = obtenerReservas();
     reservas.push(reserva);
     localStorage.setItem(RESERVAS_KEY, JSON.stringify(reservas));
 
+    let mensajeExito =
+      "¡Reserva registrada! Asiento(s) " + asientosOrdenados.join(", ") + " · Total S/ " + totalPagar.toFixed(2) + "." +
+      '<div class="ticket-info">' +
+        '🎫 <strong>Recuerda:</strong> llega <strong>30 minutos antes</strong> de la salida al terminal con tu <strong>DNI</strong> para recoger tu ticket.' +
+      '</div>';
+
+    if (pendienteEfectivo) {
+      mensajeExito +=
+        '<div class="nota-aviso visible">' +
+          '⏰ <strong>Pago en efectivo:</strong> tienes <strong>6 horas</strong> para acercarte al terminal y confirmar. Pasado ese plazo, tus asientos quedarán disponibles para otro pasajero.' +
+        '</div>';
+    }
+
     alerta.classList.remove("alert-error");
     alerta.classList.add("alert-exito");
-    alerta.textContent = "¡Reserva confirmada! Asiento(s) " + asientosOrdenados.join(", ") + ". Pago: " + pagoSeleccionado + ".";
+    alerta.innerHTML = mensajeExito;
     alerta.classList.add("visible");
 
     dibujarPlano(ocupadosEnFecha());

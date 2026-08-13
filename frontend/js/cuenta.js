@@ -37,14 +37,21 @@ document.addEventListener("DOMContentLoaded", function () {
     reservasHtml = '<p class="vacio">Aún no tienes reservas. <a href="rutas.html" style="color:var(--naranja);font-weight:600;">Busca tu primer viaje</a>.</p>';
   } else {
     reservasHtml = misReservas.map(function (r) {
-      const asientos = Array.isArray(r.asiento) ? r.asiento.join(", ") : r.asiento;
+      const asientos = (r.asiento || []).map(function (asiento) {
+        return asiento + " (Piso " + pisoDeAsiento(asiento) + ")";
+      }).join(", ");
       const pago = NOMBRES_PAGO[r.metodoPago] || "No registrado";
+      const avisoEfectivo =
+        r.metodoPago === "efectivo" && r.estado === "Pendiente de confirmación"
+          ? '<div class="nota-aviso visible" style="margin-top:6px;">⏰ Confirma tu pago en el terminal dentro de 6 horas o tu asiento se liberará.</div>'
+          : "";
       return (
         '<article class="viaje-item">' +
           '<div>' +
             '<div class="viaje-ruta">' + r.origen + ' → ' + r.destino + '</div>' +
             '<div class="viaje-info">' + r.fecha + ' · Salida ' + r.hora + ' · Asiento(s) ' + asientos + '</div>' +
             '<div class="viaje-info">Pago: ' + pago + ' · Estado: ' + r.estado + '</div>' +
+            avisoEfectivo +
           '</div>' +
           '<div style="text-align:right;">' +
             '<div class="viaje-precio">S/ ' + r.total.toFixed(2) + '</div>' +

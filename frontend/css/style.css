@@ -680,6 +680,38 @@ footer a:hover {
   }
 }
 
+/* ---------- Avisos de reserva ---------- */
+.nota-aviso {
+  display: none;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #9a3412;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+.nota-aviso.visible {
+  display: block;
+}
+
+.ticket-info {
+  background: #f8fafc;
+  border-left: 4px solid var(--naranja);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  margin-top: 14px;
+  color: #334155;
+}
+
+.ticket-info strong {
+  color: var(--azul);
+}
+
 /* ---------- Nosotros ---------- */
 .nosotros-mision {
   background: var(--blanco);

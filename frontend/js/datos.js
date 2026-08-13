@@ -14,3 +14,14 @@ const VIAJES = [
 ];
 
 const RESERVAS_KEY = "busEmpresa_reservas";
+
+const PISO1_ASIENTOS = 20;
+const PISO1_MULTIPLICADOR = 1.5;
+
+function precioAsiento(viaje, numero) {
+  return numero <= PISO1_ASIENTOS ? viaje.precio * PISO1_MULTIPLICADOR : viaje.precio;
+}
+
+function pisoDeAsiento(numero) {
+  return numero <= PISO1_ASIENTOS ? 1 : 2;
+}
