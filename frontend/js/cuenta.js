@@ -45,12 +45,16 @@ document.addEventListener("DOMContentLoaded", function () {
         r.metodoPago === "efectivo" && r.estado === "Pendiente de confirmación"
           ? '<div class="nota-aviso visible" style="margin-top:6px;">⏰ Confirma tu pago en el terminal dentro de 6 horas o tu asiento se liberará.</div>'
           : "";
+      const avisoFamiliar = r.planFamiliar
+        ? '<div class="viaje-info" style="color:var(--naranja-oscuro);">👨‍👩‍👧‍👦 Plan familiar (10% de descuento) aplicado</div>'
+        : "";
       return (
         '<article class="viaje-item">' +
           '<div>' +
             '<div class="viaje-ruta">' + r.origen + ' → ' + r.destino + '</div>' +
             '<div class="viaje-info">' + r.fecha + ' · Salida ' + r.hora + ' · Asiento(s) ' + asientos + '</div>' +
             '<div class="viaje-info">Pago: ' + pago + ' · Estado: ' + r.estado + '</div>' +
+            avisoFamiliar +
             avisoEfectivo +
           '</div>' +
           '<div style="text-align:right;">' +

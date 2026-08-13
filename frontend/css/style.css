@@ -582,6 +582,31 @@ footer a:hover {
   letter-spacing: 1px;
 }
 
+.escalera-lateral {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 94px;
+  height: 44px;
+  background: repeating-linear-gradient(
+    45deg,
+    #e2e8f0,
+    #e2e8f0 8px,
+    #cbd5e1 8px,
+    #cbd5e1 16px
+  );
+  color: var(--azul-oscuro);
+  font-weight: 700;
+  font-size: 0.65rem;
+  border: 2px dashed var(--gris);
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+  line-height: 1.2;
+}
+
 .leyenda {
   display: flex;
   gap: 16px;
@@ -678,6 +703,156 @@ footer a:hover {
   .fila-tarjeta {
     grid-template-columns: 1fr;
   }
+}
+
+/* ---------- Botones flotantes (WhatsApp y accesibilidad) ---------- */
+.botones-flotantes {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  z-index: 300;
+}
+
+.btn-flotante {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s;
+}
+
+.btn-flotante:hover {
+  transform: scale(1.1);
+}
+
+.btn-wsp {
+  background: #25d366;
+  color: #ffffff;
+}
+
+.btn-acc {
+  background: var(--azul);
+  color: #ffffff;
+}
+
+.panel-accesibilidad {
+  position: fixed;
+  right: 20px;
+  bottom: 92px;
+  width: 270px;
+  background: var(--blanco);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+  padding: 16px;
+  display: none;
+  z-index: 300;
+}
+
+.panel-accesibilidad.visible {
+  display: block;
+}
+
+.panel-accesibilidad h4 {
+  color: var(--azul);
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.opcion-acc {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.opcion-acc button {
+  border: 1px solid #cbd5e1;
+  background: var(--blanco);
+  color: var(--texto);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+.opcion-acc button:hover {
+  border-color: var(--azul);
+}
+
+/* ---------- Alto contraste ---------- */
+.alto-contraste {
+  background: #000000;
+  color: #ffffff;
+}
+
+.alto-contraste .form-caja,
+.alto-contraste .tarjeta,
+.alto-contraste .viaje-item,
+.alto-contraste .contacto-info,
+.alto-contraste .nosotros-mision,
+.alto-contraste .plano-bus,
+.alto-contraste .piso,
+.alto-contraste .panel-accesibilidad,
+.alto-contraste .buscar-form {
+  background: #000000;
+  color: #ffffff;
+  border-color: #ffd54a;
+}
+
+.alto-contraste a {
+  color: #ffd54a;
+}
+
+.alto-contraste h1,
+.alto-contraste h2,
+.alto-contraste h3,
+.alto-contraste .viaje-ruta,
+.alto-contraste .viaje-precio,
+.alto-contraste .piso-titulo {
+  color: #ffd54a;
+}
+
+.alto-contraste .btn-azul {
+  background: #ffd54a;
+  color: #000000;
+}
+
+.alto-contraste .form-grupo input,
+.alto-contraste .form-grupo select,
+.alto-contraste .form-grupo textarea {
+  background: #000000;
+  color: #ffffff;
+  border-color: #ffd54a;
+}
+
+.alto-contraste .asiento {
+  background: #000000;
+  color: #ffffff;
+  border-color: #ffd54a;
+}
+
+.alto-contraste .asiento.seleccionado {
+  background: #ffd54a;
+  color: #000000;
+}
+
+.alto-contraste .asiento.ocupado {
+  background: #333333;
+  color: #999999;
+  border-color: #333333;
 }
 
 /* ---------- Avisos de reserva ---------- */

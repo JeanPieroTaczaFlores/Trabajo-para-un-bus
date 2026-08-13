@@ -22,8 +22,9 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  const TOTAL_ASIENTOS = 60;
-  const precioPiso1 = viaje.precio * PISO1_MULTIPLICADOR;
+  const TOTAL_ASIENTOS = 64;
+  const PRECIO_PISO1 = viaje.precio * PISO1_MULTIPLICADOR;
+  const PLAN_FAMILIAR_DESCUENTO = 0.10;
 
   function obtenerReservas() {
     try {
@@ -37,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
   cajaReserva.innerHTML =
     '<h2>' + viaje.origen + ' → ' + viaje.destino + '</h2>' +
     '<p class="subtitulo">Salida ' + viaje.hora + ' · Duración ' + viaje.duracion + '</p>' +
-    '<div class="viaje-info">Piso 1 (premium): S/ ' + precioPiso1.toFixed(2) + ' · Piso 2: S/ ' + viaje.precio.toFixed(2) + '</div>' +
+    '<div class="viaje-info">Piso 1 (premium): S/ ' + PRECIO_PISO1.toFixed(2) + ' · Piso 2: S/ ' + viaje.precio.toFixed(2) + '</div>' +
     '<div class="alert alert-error" id="alerta"></div>' +
     '<form id="form-reserva" novalidate>' +
       '<div class="form-grupo">' +
@@ -49,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
         '<label>Elige tus asientos en el bus</label>' +
         '<div class="plano-bus">' +
           '<div class="piso">' +
-            '<div class="piso-titulo"><span>PISO 1 · PREMIUM</span><span>Asientos 1 - 20 · S/ ' + precioPiso1.toFixed(2) + '</span></div>' +
+            '<div class="piso-titulo"><span>PISO 1 · PREMIUM</span><span>Asientos 1 - 20 · S/ ' + PRECIO_PISO1.toFixed(2) + '</span></div>' +
             '<div id="plano-piso1"></div>' +
           '</div>' +
           '<div class="piso">' +
@@ -72,7 +73,14 @@ document.addEventListener("DOMContentLoaded", function () {
           '<option value="2">2 pasajeros</option>' +
           '<option value="3">3 pasajeros</option>' +
           '<option value="4">4 pasajeros</option>' +
+          '<option value="5">5 pasajeros</option>' +
+          '<option value="6">6 pasajeros</option>' +
+          '<option value="7">7 pasajeros</option>' +
+          '<option value="8">8 pasajeros</option>' +
         '</select>' +
+        '<div class="nota-aviso" id="nota-familia">' +
+          '👨‍👩‍👧‍👦 <strong>Plan de beneficio familiar activado:</strong> por superar los 5 pasajeros obtienes un <strong>10% de descuento</strong> en el total.' +
+        '</div>' +
       '</div>' +
       '<div class="form-grupo">' +
         '<label>Método de pago</label>' +
@@ -134,6 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const total = document.getElementById("total");
   const datosTarjeta = document.getElementById("datos-tarjeta");
   const notaEfectivo = document.getElementById("nota-efectivo");
+  const notaFamilia = document.getElementById("nota-familia");
 
   const hoy = new Date();
   hoy.setDate(hoy.getDate() + 1);
@@ -147,12 +156,20 @@ document.addEventListener("DOMContentLoaded", function () {
     return parseInt(selectPasajeros.value, 10);
   }
 
+  function planFamiliarActivo() {
+    return cantidadPasajeros() >= 6;
+  }
+
   function actualizarTotal() {
     let suma = 0;
     asientosSeleccionados.forEach(function (numero) {
       suma += precioAsiento(viaje, numero);
     });
+    if (planFamiliarActivo()) {
+      suma = suma * (1 - PLAN_FAMILIAR_DESCUENTO);
+    }
     total.textContent = "S/ " + suma.toFixed(2);
+    notaFamilia.classList.toggle("visible", planFamiliarActivo());
   }
 
   function agregarAsiento(numero) {
@@ -226,11 +243,52 @@ document.addEventListener("DOMContentLoaded", function () {
     return fila;
   }
 
-  function crearEscalera() {
+  function crearEscaleraLateral() {
     const escalera = document.createElement("div");
-    escalera.className = "escalera";
-    escalera.innerHTML = "🪜 Escaleras - subida al piso 2";
+    escalera.className = "escalera-lateral";
+    escalera.innerHTML = "🪜 Escaleras";
+    escalera.title = "Escaleras de subida al piso 2";
     return escalera;
+  }
+
+  function crearFilaConEscalera(numeros, ocupados) {
+    const fila = document.createElement("div");
+    fila.className = "fila";
+    fila.appendChild(crearEscaleraLateral());
+    const pasillo = document.createElement("div");
+    pasillo.className = "pasillo";
+    fila.appendChild(pasillo);
+    numeros.forEach(function (numero) {
+      const boton = document.createElement("button");
+      boton.type = "button";
+      boton.className = "asiento";
+      boton.textContent = numero;
+      boton.title = "Asiento " + numero + " · Piso " + pisoDeAsiento(numero);
+
+      if (ocupados[numero]) {
+        boton.classList.add("ocupado");
+        boton.disabled = true;
+      } else {
+        boton.addEventListener("click", function () {
+          if (boton.classList.contains("seleccionado")) {
+            quitarAsiento(numero);
+          } else {
+            if (asientosSeleccionados.length >= cantidadPasajeros()) {
+              alerta.classList.remove("alert-exito");
+              alerta.classList.add("alert-error");
+              alerta.textContent = "Solo puedes elegir " + cantidadPasajeros() + " asiento(s). Ajusta la cantidad de pasajeros.";
+              alerta.classList.add("visible");
+              return;
+            }
+            agregarAsiento(numero);
+          }
+        });
+      }
+
+      asientos[numero] = boton;
+      fila.appendChild(boton);
+    });
+    return fila;
   }
 
   function dibujarPlano(ocupados) {
@@ -246,15 +304,17 @@ document.addEventListener("DOMContentLoaded", function () {
       numero += 4;
     }
 
-    for (let fila = 1; fila <= 5; fila++) {
+    for (let fila = 1; fila <= 4; fila++) {
       piso2.appendChild(crearFila([numero, numero + 1, numero + 2, numero + 3], ocupados));
       numero += 4;
     }
 
-    piso2.appendChild(crearEscalera());
-    piso2.appendChild(crearEscalera());
+    piso2.appendChild(crearFilaConEscalera([numero, numero + 1], ocupados));
+    numero += 2;
+    piso2.appendChild(crearFilaConEscalera([numero, numero + 1], ocupados));
+    numero += 2;
 
-    for (let fila = 1; fila <= 5; fila++) {
+    for (let fila = 1; fila <= 6; fila++) {
       piso2.appendChild(crearFila([numero, numero + 1, numero + 2, numero + 3], ocupados));
       numero += 4;
     }
@@ -276,6 +336,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (asientosSeleccionados.length === cantidadPasajeros()) {
       alerta.classList.remove("visible");
     }
+    actualizarTotal();
   });
 
   document.querySelectorAll(".metodo-item").forEach(function (item) {
@@ -356,6 +417,9 @@ document.addEventListener("DOMContentLoaded", function () {
     asientosOrdenados.forEach(function (numero) {
       totalPagar += precioAsiento(viaje, numero);
     });
+    const planFamiliar = planFamiliarActivo();
+    const descuentoFamiliar = planFamiliar ? PLAN_FAMILIAR_DESCUENTO : 0;
+    totalPagar = totalPagar * (1 - descuentoFamiliar);
 
     const pendienteEfectivo = pagoSeleccionado === "efectivo";
 
@@ -372,6 +436,7 @@ document.addEventListener("DOMContentLoaded", function () {
       pasajeros: cantidad,
       total: totalPagar,
       metodoPago: pagoSeleccionado,
+      planFamiliar: planFamiliar,
       estado: pendienteEfectivo ? "Pendiente de confirmación" : "Confirmada",
       fechaReserva: new Date().toISOString()
     };
@@ -381,7 +446,16 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem(RESERVAS_KEY, JSON.stringify(reservas));
 
     let mensajeExito =
-      "¡Reserva registrada! Asiento(s) " + asientosOrdenados.join(", ") + " · Total S/ " + totalPagar.toFixed(2) + "." +
+      "¡Reserva registrada! Asiento(s) " + asientosOrdenados.join(", ") + " · Total S/ " + totalPagar.toFixed(2) + ".";
+
+    if (planFamiliar) {
+      mensajeExito +=
+        '<div class="nota-aviso visible">' +
+          '👨‍👩‍👧‍👦 <strong>Plan de beneficio familiar:</strong> se aplicó el 10% de descuento a tu compra.' +
+        '</div>';
+    }
+
+    mensajeExito +=
       '<div class="ticket-info">' +
         '🎫 <strong>Recuerda:</strong> llega <strong>30 minutos antes</strong> de la salida al terminal con tu <strong>DNI</strong> para recoger tu ticket.' +
       '</div>';
