@@ -13,58 +13,59 @@
     </a>
     <button class="menu-toggle" aria-label="Menú">☰</button>
     <div class="nav-links">
-      <a href="../index.html">Inicio</a>
-      <a href="nosotros.html">Nosotros</a>
-      <a href="rutas.html">Rutas y Horarios</a>
-      <a href="reservas.html" id="enlace-reserva">Reservar</a>
-      <a href="contacto.html">Contacto</a>
-      <a href="login.html">Iniciar sesión</a>
-      <a href="registro.html" class="boton-nav activo">Crear cuenta</a>
-      <a href="#" id="enlace-salir" style="display:none;">Salir</a>
+      <a href="../index.html" data-i18n="nav.inicio">Inicio</a>
+      <a href="nosotros.html" data-i18n="nav.nosotros">Nosotros</a>
+      <a href="rutas.html" data-i18n="nav.rutas">Rutas y Horarios</a>
+      <a href="reservas.html" id="enlace-reserva" data-i18n="nav.reservar">Reservar</a>
+      <a href="contacto.html" data-i18n="nav.contacto">Contacto</a>
+      <a href="login.html" data-i18n="nav.login">Iniciar sesión</a>
+      <a href="registro.html" class="boton-nav activo" data-i18n="nav.registro">Crear cuenta</a>
+      <a href="#" id="enlace-salir" style="display:none;" data-i18n="nav.salir">Salir</a>
     </div>
   </nav>
 
   <main class="contenido">
     <div class="form-caja">
-      <h2>Crear cuenta</h2>
-      <p class="subtitulo">Completa tus datos para empezar a viajar.</p>
+      <h2 data-i18n="reg.titulo">Crear cuenta</h2>
+      <p class="subtitulo" data-i18n="reg.sub">Completa tus datos para empezar a viajar.</p>
       <div class="alert alert-error" id="alerta"></div>
       <form id="form-registro" novalidate>
         <div class="form-grupo">
-          <label for="nombre">Nombre completo</label>
-          <input type="text" id="nombre" placeholder="Ej. Juan Pérez" autocomplete="name">
-          <div class="mensaje-error" id="error-nombre">Ingresa tu nombre completo.</div>
+          <label for="nombre" data-i18n="reg.nombre">Nombre completo</label>
+          <input type="text" id="nombre" placeholder="Ej. Juan Pérez" data-i18n-ph="reg.nombrePh" autocomplete="name">
+          <div class="mensaje-error" id="error-nombre" data-i18n="reg.errNombre">Ingresa tu nombre completo.</div>
         </div>
         <div class="form-grupo">
-          <label for="correo">Correo electrónico</label>
-          <input type="email" id="correo" placeholder="tucorreo@ejemplo.com" autocomplete="email">
-          <div class="mensaje-error" id="error-correo">Ingresa un correo válido.</div>
+          <label for="correo" data-i18n="reg.correo">Correo electrónico</label>
+          <input type="email" id="correo" placeholder="tucorreo@ejemplo.com" data-i18n-ph="reg.correoPh" autocomplete="email">
+          <div class="mensaje-error" id="error-correo" data-i18n="reg.errCorreo">Ingresa un correo válido.</div>
         </div>
         <div class="form-grupo">
-          <label for="telefono">Teléfono</label>
-          <input type="tel" id="telefono" placeholder="Ej. 987 654 321" autocomplete="tel">
-          <div class="mensaje-error" id="error-telefono">Ingresa un teléfono válido.</div>
+          <label for="telefono" data-i18n="reg.telefono">Teléfono</label>
+          <input type="tel" id="telefono" placeholder="Ej. 987 654 321" data-i18n-ph="reg.telefonoPh" autocomplete="tel">
+          <div class="mensaje-error" id="error-telefono" data-i18n="reg.errTelefono">Ingresa un teléfono válido.</div>
         </div>
         <div class="form-grupo">
-          <label for="contrasena">Contraseña</label>
-          <input type="password" id="contrasena" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
-          <div class="mensaje-error" id="error-contrasena">La contraseña debe tener al menos 6 caracteres.</div>
+          <label for="contrasena" data-i18n="reg.pass">Contraseña</label>
+          <input type="password" id="contrasena" placeholder="Mínimo 6 caracteres" data-i18n-ph="reg.passPh" autocomplete="new-password">
+          <div class="mensaje-error" id="error-contrasena" data-i18n="reg.errPass">La contraseña debe tener al menos 6 caracteres.</div>
         </div>
         <div class="form-grupo">
-          <label for="confirmar">Confirmar contraseña</label>
-          <input type="password" id="confirmar" placeholder="Repite tu contraseña" autocomplete="new-password">
-          <div class="mensaje-error" id="error-confirmar">Las contraseñas no coinciden.</div>
+          <label for="confirmar" data-i18n="reg.confirmar">Confirmar contraseña</label>
+          <input type="password" id="confirmar" placeholder="Repite tu contraseña" data-i18n-ph="reg.confirmarPh" autocomplete="new-password">
+          <div class="mensaje-error" id="error-confirmar" data-i18n="reg.errConfirmar">Las contraseñas no coinciden.</div>
         </div>
-        <button type="submit" class="btn btn-azul btn-bloque">Registrarme</button>
+        <button type="submit" class="btn btn-azul btn-bloque" data-i18n="reg.registrarme">Registrarme</button>
       </form>
-      <p class="texto-centro mt-16">¿Ya tienes cuenta? <a href="login.html" style="color:var(--naranja);font-weight:600;">Inicia sesión</a></p>
+      <p class="texto-centro mt-16"><span data-i18n="reg.yaCuenta">¿Ya tienes cuenta?</span> <a href="login.html" style="color:var(--naranja);font-weight:600;" data-i18n="reg.inicia">Inicia sesión</a></p>
     </div>
   </main>
 
   <footer>
-    <p>© 2026 TransRápido - Todos los derechos reservados</p>
+    <p data-i18n="footer.copy">© 2026 TransRápido - Todos los derechos reservados</p>
   </footer>
 
+  <script src="../js/i18n.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/registro.js"></script>
   <script src="../js/main.js"></script>

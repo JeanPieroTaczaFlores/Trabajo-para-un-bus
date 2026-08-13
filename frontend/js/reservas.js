@@ -3,10 +3,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (!usuarioAutenticado()) {
     cajaReserva.innerHTML =
-      '<h2>Necesitas iniciar sesión</h2>' +
-      '<p class="subtitulo">Para reservar tu viaje primero debes iniciar sesión o crear una cuenta.</p>' +
-      '<a href="login.html" class="btn btn-azul btn-bloque">Iniciar sesión</a>' +
-      '<a href="registro.html" class="btn btn-secundario btn-bloque mt-16">Crear cuenta</a>';
+      '<h2>' + t("reservas.necesitaTitulo") + '</h2>' +
+      '<p class="subtitulo">' + t("reservas.necesitaSub") + '</p>' +
+      '<a href="login.html" class="btn btn-azul btn-bloque">' + t("nav.login") + '</a>' +
+      '<a href="registro.html" class="btn btn-secundario btn-bloque mt-16">' + t("nav.registro") + '</a>';
     return;
   }
 
@@ -16,9 +16,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (!viaje) {
     cajaReserva.innerHTML =
-      '<h2>Selecciona un viaje</h2>' +
-      '<p class="subtitulo">Primero elige tu ruta y horario en la sección de rutas.</p>' +
-      '<a href="rutas.html" class="btn btn-azul btn-bloque">Ver rutas</a>';
+      '<h2>' + t("reservas.seleccionaTitulo") + '</h2>' +
+      '<p class="subtitulo">' + t("reservas.seleccionaSub") + '</p>' +
+      '<a href="rutas.html" class="btn btn-azul btn-bloque">' + t("reservas.verRutas") + '</a>';
     return;
   }
 
@@ -34,103 +34,100 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function textoPasajeros(n) {
+    return n === 1 ? t("reservas.pasajero1") : t("reservas.pasajeros", { n: n });
+  }
+
+  function opcionesPasajeros() {
+    let opciones = "";
+    for (let i = 1; i <= 8; i++) {
+      opciones += '<option value="' + i + '">' + textoPasajeros(i) + '</option>';
+    }
+    return opciones;
+  }
+
   cajaReserva.classList.add("caja-ancha");
   cajaReserva.innerHTML =
     '<h2>' + viaje.origen + ' → ' + viaje.destino + '</h2>' +
-    '<p class="subtitulo">Salida ' + viaje.hora + ' · Duración ' + viaje.duracion + '</p>' +
-    '<div class="viaje-info">Piso 1 (premium): S/ ' + PRECIO_PISO1.toFixed(2) + ' · Piso 2: S/ ' + viaje.precio.toFixed(2) + '</div>' +
+    '<p class="subtitulo">' + t("reservas.salida") + ' ' + viaje.hora + ' · ' + t("reservas.duracion") + ' ' + viaje.duracion + '</p>' +
+    '<div class="viaje-info">' + t("reservas.piso1") + PRECIO_PISO1.toFixed(2) + ' · ' + t("reservas.piso2") + viaje.precio.toFixed(2) + '</div>' +
     '<div class="alert alert-error" id="alerta"></div>' +
     '<form id="form-reserva" novalidate>' +
       '<div class="form-grupo">' +
-        '<label for="fecha-viaje">Fecha de viaje</label>' +
+        '<label for="fecha-viaje">' + t("reservas.fechaLabel") + '</label>' +
         '<input type="date" id="fecha-viaje">' +
-        '<div class="mensaje-error" id="error-fecha">Selecciona una fecha válida.</div>' +
+        '<div class="mensaje-error" id="error-fecha">' + t("reservas.errFecha") + '</div>' +
       '</div>' +
       '<div class="form-grupo">' +
-        '<label>Elige tus asientos en el bus</label>' +
+        '<label>' + t("reservas.asientosLabel") + '</label>' +
         '<div class="plano-bus">' +
           '<div class="piso">' +
-            '<div class="piso-titulo"><span>PISO 1 · PREMIUM</span><span>Asientos 1 - 20 · S/ ' + PRECIO_PISO1.toFixed(2) + '</span></div>' +
+            '<div class="piso-titulo"><span>' + t("reservas.piso1Titulo") + '</span><span>' + t("reservas.asientos") + ' 1 - 20 · S/ ' + PRECIO_PISO1.toFixed(2) + '</span></div>' +
             '<div id="plano-piso1"></div>' +
           '</div>' +
           '<div class="piso">' +
-            '<div class="piso-titulo"><span>PISO 2 · ECONÓMICO</span><span>Asientos 21 - ' + TOTAL_ASIENTOS + ' · S/ ' + viaje.precio.toFixed(2) + '</span></div>' +
+            '<div class="piso-titulo"><span>' + t("reservas.piso2Titulo") + '</span><span>' + t("reservas.asientos") + ' 21 - ' + TOTAL_ASIENTOS + ' · S/ ' + viaje.precio.toFixed(2) + '</span></div>' +
             '<div id="plano-piso2"></div>' +
           '</div>' +
           '<div class="leyenda">' +
-            '<span><span class="muestra-asiento"></span> Disponible</span>' +
-            '<span><span class="muestra-asiento seleccionada"></span> Seleccionado</span>' +
-            '<span><span class="muestra-asiento ocupada"></span> Ocupado</span>' +
-            '<span><span class="muestra-asiento escalera"></span> Escaleras</span>' +
+            '<span><span class="muestra-asiento"></span> ' + t("reservas.leyDisp") + '</span>' +
+            '<span><span class="muestra-asiento seleccionada"></span> ' + t("reservas.leySel") + '</span>' +
+            '<span><span class="muestra-asiento ocupada"></span> ' + t("reservas.leyOcup") + '</span>' +
+            '<span><span class="muestra-asiento escalera"></span> ' + t("reservas.leyEsc") + '</span>' +
           '</div>' +
         '</div>' +
-        '<div class="mensaje-error" id="error-asientos">Selecciona un asiento por pasajero.</div>' +
+        '<div class="mensaje-error" id="error-asientos">' + t("reservas.errAsientos") + '</div>' +
       '</div>' +
       '<div class="form-grupo">' +
-        '<label for="pasajeros">Número de pasajeros</label>' +
-        '<select id="pasajeros">' +
-          '<option value="1">1 pasajero</option>' +
-          '<option value="2">2 pasajeros</option>' +
-          '<option value="3">3 pasajeros</option>' +
-          '<option value="4">4 pasajeros</option>' +
-          '<option value="5">5 pasajeros</option>' +
-          '<option value="6">6 pasajeros</option>' +
-          '<option value="7">7 pasajeros</option>' +
-          '<option value="8">8 pasajeros</option>' +
-        '</select>' +
-        '<div class="nota-aviso" id="nota-familia">' +
-          '👨‍👩‍👧‍👦 <strong>Plan de beneficio familiar activado:</strong> por superar los 5 pasajeros obtienes un <strong>10% de descuento</strong> en el total.' +
-        '</div>' +
+        '<label for="pasajeros">' + t("reservas.pasajerosLabel") + '</label>' +
+        '<select id="pasajeros">' + opcionesPasajeros() + '</select>' +
+        '<div class="nota-aviso" id="nota-familia">' + t("reservas.familiaNota") + '</div>' +
       '</div>' +
       '<div class="form-grupo">' +
-        '<label>Método de pago</label>' +
+        '<label>' + t("reservas.pagoLabel") + '</label>' +
         '<div class="metodos-pago">' +
           '<button type="button" class="metodo-item" data-pago="tarjeta">' +
-            '<input type="radio" name="pago" value="tarjeta"><span>💳 Tarjeta</span>' +
+            '<input type="radio" name="pago" value="tarjeta"><span>💳 ' + t("reservas.tarjeta") + '</span>' +
           '</button>' +
           '<button type="button" class="metodo-item" data-pago="yape">' +
-            '<input type="radio" name="pago" value="yape"><span>📱 Yape / Plin</span>' +
+            '<input type="radio" name="pago" value="yape"><span>📱 ' + t("reservas.yape") + '</span>' +
           '</button>' +
           '<button type="button" class="metodo-item" data-pago="transferencia">' +
-            '<input type="radio" name="pago" value="transferencia"><span>🏦 Transferencia</span>' +
+            '<input type="radio" name="pago" value="transferencia"><span>🏦 ' + t("reservas.transferencia") + '</span>' +
           '</button>' +
           '<button type="button" class="metodo-item" data-pago="efectivo">' +
-            '<input type="radio" name="pago" value="efectivo"><span>💵 Efectivo en terminal</span>' +
+            '<input type="radio" name="pago" value="efectivo"><span>💵 ' + t("reservas.efectivo") + '</span>' +
           '</button>' +
         '</div>' +
         '<div class="datos-tarjeta" id="datos-tarjeta">' +
           '<div class="form-grupo">' +
-            '<label for="num-tarjeta">Número de tarjeta</label>' +
+            '<label for="num-tarjeta">' + t("reservas.numTarjeta") + '</label>' +
             '<input type="text" id="num-tarjeta" placeholder="0000 0000 0000 0000" inputmode="numeric" maxlength="19">' +
           '</div>' +
           '<div class="form-grupo">' +
-            '<label for="titular-tarjeta">Titular</label>' +
-            '<input type="text" id="titular-tarjeta" placeholder="Como aparece en la tarjeta">' +
+            '<label for="titular-tarjeta">' + t("reservas.titular") + '</label>' +
+            '<input type="text" id="titular-tarjeta" placeholder="...">' +
           '</div>' +
           '<div class="fila-tarjeta">' +
             '<div class="form-grupo">' +
-              '<label for="venc-tarjeta">Vencimiento</label>' +
+              '<label for="venc-tarjeta">' + t("reservas.venc") + '</label>' +
               '<input type="text" id="venc-tarjeta" placeholder="MM/AA" maxlength="5">' +
             '</div>' +
             '<div class="form-grupo">' +
-              '<label for="cvv-tarjeta">CVV</label>' +
+              '<label for="cvv-tarjeta">' + t("reservas.cvv") + '</label>' +
               '<input type="password" id="cvv-tarjeta" placeholder="123" maxlength="4" inputmode="numeric">' +
             '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="nota-aviso" id="nota-efectivo">' +
-          '⚠️ <strong>Pago en efectivo:</strong> acércate al terminal en un plazo de <strong>6 horas</strong> desde tu reserva para que el personal confirme tu pago. Si no lo haces, tu(s) asiento(s) quedarán <strong>disponibles para otro pasajero</strong>.' +
-        '</div>' +
-        '<div class="mensaje-error" id="error-pago">Selecciona un método de pago.</div>' +
+        '<div class="nota-aviso" id="nota-efectivo">' + t("reservas.notaEfectivo") + '</div>' +
+        '<div class="mensaje-error" id="error-pago">' + t("reservas.errPago") + '</div>' +
       '</div>' +
       '<div class="form-grupo">' +
-        '<label>Total a pagar</label>' +
+        '<label>' + t("reservas.totalLabel") + '</label>' +
         '<div class="viaje-precio" id="total">S/ 0.00</div>' +
       '</div>' +
-      '<button type="submit" class="btn btn-primario btn-bloque">Confirmar reserva</button>' +
-      '<div class="ticket-info">' +
-        '🎫 <strong>Al momento de viajar:</strong> acércate a la ventanilla <strong>30 minutos antes de la salida</strong> para recoger tu ticket y presenta tu <strong>DNI</strong>.' +
-      '</div>' +
+      '<button type="submit" class="btn btn-primario btn-bloque">' + t("reservas.confirmar") + '</button>' +
+      '<div class="ticket-info">' + t("reservas.ticket") + '</div>' +
     '</form>';
 
   const fechaInput = document.getElementById("fecha-viaje");
@@ -202,6 +199,37 @@ document.addEventListener("DOMContentLoaded", function () {
     return ocupados;
   }
 
+  function crearBotonAsiento(numero, ocupados) {
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "asiento";
+    boton.textContent = numero;
+    boton.title = "Asiento " + numero + " · Piso " + pisoDeAsiento(numero);
+
+    if (ocupados[numero]) {
+      boton.classList.add("ocupado");
+      boton.disabled = true;
+    } else {
+      boton.addEventListener("click", function () {
+        if (boton.classList.contains("seleccionado")) {
+          quitarAsiento(numero);
+        } else {
+          if (asientosSeleccionados.length >= cantidadPasajeros()) {
+            alerta.classList.remove("alert-exito");
+            alerta.classList.add("alert-error");
+            alerta.textContent = t("reservas.soloAsientos", { n: cantidadPasajeros() });
+            alerta.classList.add("visible");
+            return;
+          }
+          agregarAsiento(numero);
+        }
+      });
+    }
+
+    asientos[numero] = boton;
+    return boton;
+  }
+
   function crearFila(numeros, ocupados) {
     const fila = document.createElement("div");
     fila.className = "fila";
@@ -211,34 +239,7 @@ document.addEventListener("DOMContentLoaded", function () {
         pasillo.className = "pasillo";
         fila.appendChild(pasillo);
       }
-      const boton = document.createElement("button");
-      boton.type = "button";
-      boton.className = "asiento";
-      boton.textContent = numero;
-      boton.title = "Asiento " + numero + " · Piso " + pisoDeAsiento(numero);
-
-      if (ocupados[numero]) {
-        boton.classList.add("ocupado");
-        boton.disabled = true;
-      } else {
-        boton.addEventListener("click", function () {
-          if (boton.classList.contains("seleccionado")) {
-            quitarAsiento(numero);
-          } else {
-            if (asientosSeleccionados.length >= cantidadPasajeros()) {
-              alerta.classList.remove("alert-exito");
-              alerta.classList.add("alert-error");
-              alerta.textContent = "Solo puedes elegir " + cantidadPasajeros() + " asiento(s). Ajusta la cantidad de pasajeros.";
-              alerta.classList.add("visible");
-              return;
-            }
-            agregarAsiento(numero);
-          }
-        });
-      }
-
-      asientos[numero] = boton;
-      fila.appendChild(boton);
+      fila.appendChild(crearBotonAsiento(numero, ocupados));
     });
     return fila;
   }
@@ -246,7 +247,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function crearEscaleraLateral() {
     const escalera = document.createElement("div");
     escalera.className = "escalera-lateral";
-    escalera.innerHTML = "🪜 Escaleras";
+    escalera.innerHTML = "🪜 " + t("reservas.leyEsc");
     escalera.title = "Escaleras de subida al piso 2";
     return escalera;
   }
@@ -259,34 +260,7 @@ document.addEventListener("DOMContentLoaded", function () {
     pasillo.className = "pasillo";
     fila.appendChild(pasillo);
     numeros.forEach(function (numero) {
-      const boton = document.createElement("button");
-      boton.type = "button";
-      boton.className = "asiento";
-      boton.textContent = numero;
-      boton.title = "Asiento " + numero + " · Piso " + pisoDeAsiento(numero);
-
-      if (ocupados[numero]) {
-        boton.classList.add("ocupado");
-        boton.disabled = true;
-      } else {
-        boton.addEventListener("click", function () {
-          if (boton.classList.contains("seleccionado")) {
-            quitarAsiento(numero);
-          } else {
-            if (asientosSeleccionados.length >= cantidadPasajeros()) {
-              alerta.classList.remove("alert-exito");
-              alerta.classList.add("alert-error");
-              alerta.textContent = "Solo puedes elegir " + cantidadPasajeros() + " asiento(s). Ajusta la cantidad de pasajeros.";
-              alerta.classList.add("visible");
-              return;
-            }
-            agregarAsiento(numero);
-          }
-        });
-      }
-
-      asientos[numero] = boton;
-      fila.appendChild(boton);
+      fila.appendChild(crearBotonAsiento(numero, ocupados));
     });
     return fila;
   }
@@ -403,7 +377,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (pagoSeleccionado === "tarjeta" && !validarTarjeta()) {
-      alerta.textContent = "Verifica los datos de tu tarjeta.";
+      alerta.textContent = t("reservas.maxPago");
       alerta.classList.add("visible");
       valido = false;
     }
@@ -446,25 +420,16 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem(RESERVAS_KEY, JSON.stringify(reservas));
 
     let mensajeExito =
-      "¡Reserva registrada! Asiento(s) " + asientosOrdenados.join(", ") + " · Total S/ " + totalPagar.toFixed(2) + ".";
+      t("reservas.confirmado") + " Asiento(s) " + asientosOrdenados.join(", ") + " · Total S/ " + totalPagar.toFixed(2) + ".";
 
     if (planFamiliar) {
-      mensajeExito +=
-        '<div class="nota-aviso visible">' +
-          '👨‍👩‍👧‍👦 <strong>Plan de beneficio familiar:</strong> se aplicó el 10% de descuento a tu compra.' +
-        '</div>';
+      mensajeExito += '<div class="nota-aviso visible">' + t("reservas.familiaMsg") + '</div>';
     }
 
-    mensajeExito +=
-      '<div class="ticket-info">' +
-        '🎫 <strong>Recuerda:</strong> llega <strong>30 minutos antes</strong> de la salida al terminal con tu <strong>DNI</strong> para recoger tu ticket.' +
-      '</div>';
+    mensajeExito += '<div class="ticket-info">' + t("reservas.ticketRec") + '</div>';
 
     if (pendienteEfectivo) {
-      mensajeExito +=
-        '<div class="nota-aviso visible">' +
-          '⏰ <strong>Pago en efectivo:</strong> tienes <strong>6 horas</strong> para acercarte al terminal y confirmar. Pasado ese plazo, tus asientos quedarán disponibles para otro pasajero.' +
-        '</div>';
+      mensajeExito += '<div class="nota-aviso visible">' + t("reservas.efectivoRec") + '</div>';
     }
 
     alerta.classList.remove("alert-error");

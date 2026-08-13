@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     if (!usuario) {
-      alerta.textContent = "Correo o contraseña incorrectos.";
+      alerta.textContent = t("login.errCredenciales");
       alerta.classList.add("visible");
       return;
     }

@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const usuarios = obtenerUsuarios();
     if (usuarios.some(function (u) { return u.correo === correo; })) {
-      alerta.textContent = "Ya existe una cuenta con ese correo.";
+      alerta.textContent = t("reg.existe");
       alerta.classList.add("visible");
       return;
     }
@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     alerta.classList.remove("alert-error");
     alerta.classList.add("alert-exito");
-    alerta.textContent = "¡Cuenta creada! Redirigiendo...";
+    alerta.textContent = t("reg.exito");
     alerta.classList.add("visible");
 
     setTimeout(function () {

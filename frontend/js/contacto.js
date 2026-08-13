@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!valido) return;
 
-    alerta.textContent = "¡Gracias " + nombre.split(" ")[0] + "! Recibimos tu mensaje y te responderemos pronto.";
+    alerta.textContent = t("contacto.exito", { nombre: nombre.split(" ")[0] });
     alerta.classList.add("visible");
     formulario.reset();
   });

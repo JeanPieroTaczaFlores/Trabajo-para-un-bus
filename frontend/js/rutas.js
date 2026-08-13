@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function mostrarViajes(lista) {
     if (lista.length === 0) {
-      resultados.innerHTML = '<p class="vacio">No encontramos viajes con esos criterios. Intenta con otras ciudades.</p>';
+      resultados.innerHTML = '<p class="vacio">' + t("rutas.vacio") + '</p>';
       return;
     }
 
@@ -33,17 +33,17 @@ document.addEventListener("DOMContentLoaded", function () {
         '<article class="viaje-item">' +
           '<div>' +
             '<div class="viaje-ruta">' + viaje.origen + ' → ' + viaje.destino + '</div>' +
-            '<div class="viaje-info">Salida: ' + viaje.hora + ' · Duración: ' + viaje.duracion + '</div>' +
+            '<div class="viaje-info">' + t("rutas.salida") + ': ' + viaje.hora + ' · ' + t("rutas.duracion") + ': ' + viaje.duracion + '</div>' +
           '</div>' +
           '<div style="text-align:right;">' +
             '<div class="viaje-precio">S/ ' + viaje.precio.toFixed(2) + '</div>' +
-            '<a href="reservas.html?viaje=' + viaje.id + '" class="btn btn-primario mt-16">Reservar</a>' +
+            '<a href="reservas.html?viaje=' + viaje.id + '" class="btn btn-primario mt-16">' + t("rutas.reservar") + '</a>' +
           '</div>' +
         '</article>'
       );
     }).join("");
 
-    resultados.innerHTML = '<h2 class="seccion-titulo">Viajes disponibles (' + lista.length + ')</h2>' + html;
+    resultados.innerHTML = '<h2 class="seccion-titulo">' + t("rutas.disponibles") + ' (' + lista.length + ')</h2>' + html;
   }
 
   function filtrar() {
