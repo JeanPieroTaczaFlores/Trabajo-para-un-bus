@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear cuenta | TransRápido</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">🚌</span> TransRápido
+    </a>
+    <button class="menu-toggle" aria-label="Menú">☰</button>
+    <div class="nav-links">
+      <a href="../index.html">Inicio</a>
+      <a href="nosotros.html">Nosotros</a>
+      <a href="rutas.html">Rutas y Horarios</a>
+      <a href="reservas.html" id="enlace-reserva">Reservar</a>
+      <a href="contacto.html">Contacto</a>
+      <a href="login.html">Iniciar sesión</a>
+      <a href="registro.html" class="boton-nav activo">Crear cuenta</a>
+      <a href="#" id="enlace-salir" style="display:none;">Salir</a>
+    </div>
+  </nav>
+
+  <main class="contenido">
+    <div class="form-caja">
+      <h2>Crear cuenta</h2>
+      <p class="subtitulo">Completa tus datos para empezar a viajar.</p>
+      <div class="alert alert-error" id="alerta"></div>
+      <form id="form-registro" novalidate>
+        <div class="form-grupo">
+          <label for="nombre">Nombre completo</label>
+          <input type="text" id="nombre" placeholder="Ej. Juan Pérez" autocomplete="name">
+          <div class="mensaje-error" id="error-nombre">Ingresa tu nombre completo.</div>
+        </div>
+        <div class="form-grupo">
+          <label for="correo">Correo electrónico</label>
+          <input type="email" id="correo" placeholder="tucorreo@ejemplo.com" autocomplete="email">
+          <div class="mensaje-error" id="error-correo">Ingresa un correo válido.</div>
+        </div>
+        <div class="form-grupo">
+          <label for="telefono">Teléfono</label>
+          <input type="tel" id="telefono" placeholder="Ej. 987 654 321" autocomplete="tel">
+          <div class="mensaje-error" id="error-telefono">Ingresa un teléfono válido.</div>
+        </div>
+        <div class="form-grupo">
+          <label for="contrasena">Contraseña</label>
+          <input type="password" id="contrasena" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+          <div class="mensaje-error" id="error-contrasena">La contraseña debe tener al menos 6 caracteres.</div>
+        </div>
+        <div class="form-grupo">
+          <label for="confirmar">Confirmar contraseña</label>
+          <input type="password" id="confirmar" placeholder="Repite tu contraseña" autocomplete="new-password">
+          <div class="mensaje-error" id="error-confirmar">Las contraseñas no coinciden.</div>
+        </div>
+        <button type="submit" class="btn btn-azul btn-bloque">Registrarme</button>
+      </form>
+      <p class="texto-centro mt-16">¿Ya tienes cuenta? <a href="login.html" style="color:var(--naranja);font-weight:600;">Inicia sesión</a></p>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 TransRápido - Todos los derechos reservados</p>
+  </footer>
+
+  <script src="../js/auth.js"></script>
+  <script src="../js/registro.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+</html>

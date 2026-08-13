@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reservar viaje | TransRápido</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">🚌</span> TransRápido
+    </a>
+    <button class="menu-toggle" aria-label="Menú">☰</button>
+    <div class="nav-links">
+      <a href="../index.html">Inicio</a>
+      <a href="nosotros.html">Nosotros</a>
+      <a href="rutas.html">Rutas y Horarios</a>
+      <a href="reservas.html" class="activo" id="enlace-reserva">Reservar</a>
+      <a href="contacto.html">Contacto</a>
+      <a href="login.html" id="enlace-login">Iniciar sesión</a>
+      <a href="registro.html" class="boton-nav">Crear cuenta</a>
+      <a href="#" id="enlace-salir" style="display:none;">Salir</a>
+    </div>
+  </nav>
+
+  <main class="contenido">
+    <section class="seccion-titulo texto-centro">
+      <h1>Reserva tu viaje</h1>
+      <p>Elige tu asiento y confirma tu pasaje.</p>
+    </section>
+
+    <div class="form-caja" style="max-width:560px;" id="caja-reserva"></div>
+  </main>
+
+  <footer>
+    <p>© 2026 TransRápido - Todos los derechos reservados</p>
+  </footer>
+
+  <script src="../js/auth.js"></script>
+  <script src="../js/datos.js"></script>
+  <script src="../js/reservas.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+</html>

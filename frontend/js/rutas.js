@@ -1,0 +1,68 @@
+document.addEventListener("DOMContentLoaded", function () {
+  const formBuscar = document.getElementById("form-buscar");
+  const origenInput = document.getElementById("origen");
+  const destinoInput = document.getElementById("destino");
+  const listaCiudades = document.getElementById("lista-ciudades");
+  const resultados = document.getElementById("resultados");
+
+  const ciudades = VIAJES.reduce(function (acc, viaje) {
+    [viaje.origen, viaje.destino].forEach(function (ciudad) {
+      if (acc.indexOf(ciudad) === -1) acc.push(ciudad);
+    });
+    return acc;
+  }, []).sort();
+
+  ciudades.forEach(function (ciudad) {
+    const opcion = document.createElement("option");
+    opcion.value = ciudad;
+    listaCiudades.appendChild(opcion);
+  });
+
+  function normalizar(texto) {
+    return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  }
+
+  function mostrarViajes(lista) {
+    if (lista.length === 0) {
+      resultados.innerHTML = '<p class="vacio">No encontramos viajes con esos criterios. Intenta con otras ciudades.</p>';
+      return;
+    }
+
+    const html = lista.map(function (viaje) {
+      return (
+        '<article class="viaje-item">' +
+          '<div>' +
+            '<div class="viaje-ruta">' + viaje.origen + ' → ' + viaje.destino + '</div>' +
+            '<div class="viaje-info">Salida: ' + viaje.hora + ' · Duración: ' + viaje.duracion + '</div>' +
+          '</div>' +
+          '<div style="text-align:right;">' +
+            '<div class="viaje-precio">S/ ' + viaje.precio.toFixed(2) + '</div>' +
+            '<a href="reservas.html?viaje=' + viaje.id + '" class="btn btn-primario mt-16">Reservar</a>' +
+          '</div>' +
+        '</article>'
+      );
+    }).join("");
+
+    resultados.innerHTML = '<h2 class="seccion-titulo">Viajes disponibles (' + lista.length + ')</h2>' + html;
+  }
+
+  function filtrar() {
+    const origen = normalizar(origenInput.value);
+    const destino = normalizar(destinoInput.value);
+
+    const lista = VIAJES.filter(function (viaje) {
+      const cumpleOrigen = !origen || normalizar(viaje.origen) === origen;
+      const cumpleDestino = !destino || normalizar(viaje.destino) === destino;
+      return cumpleOrigen && cumpleDestino;
+    });
+
+    mostrarViajes(lista);
+  }
+
+  formBuscar.addEventListener("submit", function (e) {
+    e.preventDefault();
+    filtrar();
+  });
+
+  mostrarViajes(VIAJES);
+});

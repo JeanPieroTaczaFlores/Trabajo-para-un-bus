@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contacto | TransRápido</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">
+      <span class="logo-icon">🚌</span> TransRápido
+    </a>
+    <button class="menu-toggle" aria-label="Menú">☰</button>
+    <div class="nav-links">
+      <a href="../index.html">Inicio</a>
+      <a href="nosotros.html">Nosotros</a>
+      <a href="rutas.html">Rutas y Horarios</a>
+      <a href="reservas.html" id="enlace-reserva">Reservar</a>
+      <a href="contacto.html" class="activo">Contacto</a>
+      <a href="login.html" id="enlace-login">Iniciar sesión</a>
+      <a href="registro.html" class="boton-nav">Crear cuenta</a>
+      <a href="#" id="enlace-salir" style="display:none;">Salir</a>
+    </div>
+  </nav>
+
+  <main class="contenido">
+    <section class="seccion-titulo texto-centro">
+      <h1>Contáctanos</h1>
+      <p>Estamos para ayudarte con tus viajes.</p>
+    </section>
+
+    <div class="contacto-grid">
+      <div class="contacto-info">
+        <h3>Información de contacto</h3>
+        <p>📍 Av. Los Viajeros 123, Lima - Perú</p>
+        <p>📞 Central: (01) 555-1234</p>
+        <p>📱 WhatsApp: +51 987 654 321</p>
+        <p>📧 contacto@transrapido.com</p>
+        <p>🕒 Atención: Lun a Dom, 7:00 a.m. - 9:00 p.m.</p>
+      </div>
+      <div class="contacto-info">
+        <h3>Envíanos un mensaje</h3>
+        <div class="alert alert-exito" id="alerta"></div>
+        <form id="form-contacto" novalidate>
+          <div class="form-grupo">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" placeholder="Tu nombre">
+            <div class="mensaje-error" id="error-nombre">Ingresa tu nombre.</div>
+          </div>
+          <div class="form-grupo">
+            <label for="correo">Correo</label>
+            <input type="email" id="correo" placeholder="tucorreo@ejemplo.com">
+            <div class="mensaje-error" id="error-correo">Ingresa un correo válido.</div>
+          </div>
+          <div class="form-grupo">
+            <label for="mensaje">Mensaje</label>
+            <textarea id="mensaje" placeholder="¿En qué podemos ayudarte?"></textarea>
+            <div class="mensaje-error" id="error-mensaje">Escribe tu mensaje.</div>
+          </div>
+          <button type="submit" class="btn btn-azul btn-bloque">Enviar mensaje</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 TransRápido - Todos los derechos reservados</p>
+  </footer>
+
+  <script src="../js/auth.js"></script>
+  <script src="../js/contacto.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+</html>

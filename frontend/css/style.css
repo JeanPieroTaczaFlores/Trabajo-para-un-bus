@@ -1,0 +1,713 @@
+:root {
+  --azul: #0b3d91;
+  --azul-oscuro: #072a63;
+  --naranja: #f7941d;
+  --naranja-oscuro: #e07f00;
+  --fondo: #f4f6fb;
+  --texto: #1e293b;
+  --blanco: #ffffff;
+  --gris: #94a3b8;
+  --rojo: #dc2626;
+  --verde: #16a34a;
+  --sombra: 0 4px 16px rgba(7, 42, 99, 0.12);
+  --radio: 12px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--texto);
+  background: var(--fondo);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* ---------- Navegación ---------- */
+.navbar {
+  background: var(--azul);
+  color: var(--blanco);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 68px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--sombra);
+}
+
+.navbar .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.logo-icon {
+  font-size: 1.6rem;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-links a {
+  padding: 10px 14px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.nav-links a:hover,
+.nav-links a.activo {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.boton-nav {
+  background: var(--naranja);
+  color: var(--azul-oscuro);
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 10px 16px;
+}
+
+.boton-nav:hover {
+  background: var(--naranja-oscuro);
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--blanco);
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 68px;
+    left: 0;
+    right: 0;
+    background: var(--azul-oscuro);
+    padding: 16px;
+    gap: 6px;
+  }
+  .nav-links.abierto {
+    display: flex;
+  }
+  .nav-links a {
+    padding: 12px;
+    text-align: center;
+  }
+}
+
+/* ---------- Contenido ---------- */
+.contenido {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  background: linear-gradient(135deg, var(--azul-oscuro), var(--azul));
+  color: var(--blanco);
+  border-radius: var(--radio);
+  padding: 56px 32px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.hero h1 {
+  font-size: 2.4rem;
+  margin-bottom: 12px;
+}
+
+.hero p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  max-width: 640px;
+  margin: 0 auto 28px;
+}
+
+/* ---------- Formularios ---------- */
+.form-caja {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 32px;
+  max-width: 440px;
+  margin: 24px auto;
+}
+
+.form-caja h2 {
+  color: var(--azul);
+  margin-bottom: 8px;
+}
+
+.form-caja .subtitulo {
+  color: var(--gris);
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+}
+
+.form-grupo {
+  margin-bottom: 18px;
+}
+
+.form-grupo label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.form-grupo input,
+.form-grupo select,
+.form-grupo textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.form-grupo input:focus,
+.form-grupo select:focus,
+.form-grupo textarea:focus {
+  outline: none;
+  border-color: var(--azul);
+  box-shadow: 0 0 0 3px rgba(11, 61, 145, 0.15);
+}
+
+.form-grupo textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.mensaje-error {
+  color: var(--rojo);
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: none;
+}
+
+.mensaje-error.visible {
+  display: block;
+}
+
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+  display: none;
+}
+
+.alert.visible {
+  display: block;
+}
+
+.alert-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.alert-exito {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+/* ---------- Botones ---------- */
+.btn {
+  display: inline-block;
+  border: none;
+  cursor: pointer;
+  padding: 12px 22px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-primario {
+  background: var(--naranja);
+  color: var(--azul-oscuro);
+}
+
+.btn-primario:hover {
+  background: var(--naranja-oscuro);
+}
+
+.btn-azul {
+  background: var(--azul);
+  color: var(--blanco);
+}
+
+.btn-azul:hover {
+  background: var(--azul-oscuro);
+}
+
+.btn-secundario {
+  background: transparent;
+  color: var(--azul);
+  border: 2px solid var(--azul);
+}
+
+.btn-secundario:hover {
+  background: rgba(11, 61, 145, 0.08);
+}
+
+.btn-bloque {
+  width: 100%;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* ---------- Tarjetas ---------- */
+.grid-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.tarjeta {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 24px;
+  transition: transform 0.2s;
+}
+
+.tarjeta:hover {
+  transform: translateY(-4px);
+}
+
+.tarjeta .icono {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.tarjeta h3 {
+  color: var(--azul);
+  margin-bottom: 8px;
+}
+
+.tarjeta p {
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+/* ---------- Rutas / viajes ---------- */
+.seccion-titulo {
+  margin: 32px 0 16px;
+}
+
+.seccion-titulo h2 {
+  color: var(--azul);
+}
+
+.filtro-viaje {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 14px;
+  align-items: end;
+}
+
+.filtro-viaje label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+.viaje-item {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 20px 24px;
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.viaje-ruta {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--azul);
+}
+
+.viaje-info {
+  color: #475569;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.viaje-precio {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--naranja-oscuro);
+}
+
+.vacio {
+  text-align: center;
+  color: var(--gris);
+  padding: 24px;
+}
+
+/* ---------- Búsqueda de rutas ---------- */
+.buscar-form {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+  max-width: 900px;
+  margin: 0 auto 32px;
+}
+
+.buscar-form label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+/* ---------- Contacto ---------- */
+.contacto-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.contacto-info {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 24px;
+}
+
+.contacto-info h3 {
+  color: var(--azul);
+  margin-bottom: 16px;
+}
+
+.contacto-info p {
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .contacto-grid,
+  .buscar-form,
+  .filtro-viaje {
+    grid-template-columns: 1fr;
+  }
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+}
+
+/* ---------- Footer ---------- */
+footer {
+  background: var(--azul-oscuro);
+  color: var(--blanco);
+  text-align: center;
+  padding: 20px;
+  margin-top: 40px;
+}
+
+footer .enlaces-footer {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+footer a:hover {
+  color: var(--naranja);
+}
+
+/* ---------- Plano del bus (2 pisos) ---------- */
+.caja-ancha {
+  max-width: 720px !important;
+}
+
+.plano-bus {
+  background: var(--blanco);
+  border: 2px solid var(--azul);
+  border-radius: var(--radio);
+  padding: 16px;
+  margin: 12px 0 20px;
+}
+
+.piso-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--azul);
+  font-weight: 700;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.piso {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.piso + .piso {
+  margin-top: 12px;
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.pasillo {
+  width: 18px;
+}
+
+.asiento {
+  width: 44px;
+  height: 44px;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  background: var(--blanco);
+  color: var(--texto);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  font-family: inherit;
+}
+
+.asiento:hover:not(.ocupado) {
+  border-color: var(--azul);
+  transform: scale(1.05);
+}
+
+.asiento.seleccionado {
+  background: var(--naranja);
+  border-color: var(--naranja-oscuro);
+  color: var(--blanco);
+}
+
+.asiento.ocupado {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+}
+
+.escalera {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: repeating-linear-gradient(
+    45deg,
+    #e2e8f0,
+    #e2e8f0 10px,
+    #cbd5e1 10px,
+    #cbd5e1 20px
+  );
+  color: var(--azul-oscuro);
+  font-weight: 700;
+  font-size: 0.8rem;
+  border: 2px dashed var(--gris);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.leyenda {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  margin-top: 10px;
+}
+
+.leyenda span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.muestra-asiento {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: inline-block;
+  border: 2px solid #cbd5e1;
+}
+
+.muestra-asiento.seleccionada {
+  background: var(--naranja);
+  border-color: var(--naranja-oscuro);
+}
+
+.muestra-asiento.ocupada {
+  background: #e2e8f0;
+  border-color: #e2e8f0;
+}
+
+/* ---------- Métodos de pago ---------- */
+.metodos-pago {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.metodo-item {
+  border: 2px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 0.2s, background 0.2s;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: var(--blanco);
+  color: var(--texto);
+}
+
+.metodo-item:hover {
+  border-color: var(--azul);
+}
+
+.metodo-item.seleccionado {
+  border-color: var(--naranja);
+  background: #fff7ed;
+}
+
+.metodo-item input[type="radio"] {
+  width: auto;
+  accent-color: var(--naranja);
+}
+
+.datos-tarjeta {
+  display: none;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 14px;
+  margin-top: 10px;
+}
+
+.datos-tarjeta.visible {
+  display: block;
+}
+
+.fila-tarjeta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .metodos-pago {
+    grid-template-columns: 1fr;
+  }
+  .fila-tarjeta {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Nosotros ---------- */
+.nosotros-mision {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.nosotros-mision h3 {
+  color: var(--azul);
+  margin-bottom: 10px;
+}
+
+.nosotros-mision p {
+  color: #475569;
+  line-height: 1.7;
+}
+
+/* ---------- Utilidades ---------- */
+.texto-centro {
+  text-align: center;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.mb-16 {
+  margin-bottom: 16px;
+}
