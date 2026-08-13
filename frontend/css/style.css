@@ -1657,6 +1657,18 @@ body.mascara-activa .mascara-lectura {
   min-width: 90px;
 }
 
+.pasajero-nota {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--naranja-oscuro);
+  white-space: nowrap;
+}
+
+.pasajero-item .btn-chico {
+  margin-left: auto;
+}
+
 .modo-noche .pasajero-item {
   background: #0f172a;
   border-color: #334155;

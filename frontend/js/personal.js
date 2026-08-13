@@ -224,19 +224,28 @@ document.addEventListener("DOMContentLoaded", function () {
     piso1.sort(function (a, b) { return a.asiento - b.asiento; });
     piso2.sort(function (a, b) { return a.asiento - b.asiento; });
 
+    const vehiculoActual = obtenerVehiculos().find(function (v) { return v.placa === placa; });
+    const puedeConfirmar = !!vehiculoActual && vehiculoActual.estado === "En terminal";
+
     function renderLista(lista, vistos) {
       let html = '<div class="pasajeros-lista">';
       lista.forEach(function (p) {
+        let boton = "";
+        if (p.estado === "Pendiente de confirmación" && !vistos[p.reservaId]) {
+          vistos[p.reservaId] = true;
+          if (puedeConfirmar) {
+            boton = '<button type="button" class="btn btn-primario btn-chico confirmar-pago-bus" data-id="' + p.reservaId + '" data-placa="' + placa + '">✅ Confirmar pago</button>';
+          } else {
+            boton = '<span class="pasajero-nota">⏳ Confirmar antes de la salida</span>';
+          }
+        }
         html +=
           '<div class="pasajero-item">' +
             '<span class="pasajero-asiento">Asiento ' + p.asiento + '</span>' +
             '<span><strong>' + p.nombre + '</strong></span>' +
             estadoBadge(p.estado) +
+            boton +
           '</div>';
-        if (p.estado === "Pendiente de confirmación" && !vistos[p.reservaId]) {
-          vistos[p.reservaId] = true;
-          html += '<button class="btn btn-primario btn-chico confirmar-pago-bus" data-id="' + p.reservaId + '" data-placa="' + placa + '">✅ Confirmar pago en efectivo</button>';
-        }
       });
       html += '</div>';
       return html;
@@ -567,14 +576,20 @@ document.addEventListener("DOMContentLoaded", function () {
           var placa = boton.getAttribute("data-placa");
           var accion = boton.getAttribute("data-accion");
           var vehiculos2 = obtenerVehiculos();
-          vehiculos2.forEach(function (v) {
-            if (v.placa === placa) {
-              if (accion === "salida") v.estado = "En ruta";
-              else if (accion === "llegada") v.estado = "Llegado";
-              else if (accion === "mantenimiento") v.estado = "En mantenimiento";
-              else if (accion === "terminal") v.estado = "En terminal";
+          var objetivo = vehiculos2.find(function (v) { return v.placa === placa; });
+          if (!objetivo) return;
+          if (accion === "salida") {
+            var pendientes = obtenerReservas().filter(function (r) {
+              return r.viajeId === objetivo.viajeId && r.estado === "Pendiente de confirmación" && (!objetivo.viajeFecha || r.fecha === objetivo.viajeFecha);
+            });
+            if (pendientes.length > 0 && !confirm("⚠️ Hay " + pendientes.length + " pago(s) en efectivo pendiente(s) para " + placa + ". Confirma los pagos antes de la salida. ¿Salir de todos modos?")) {
+              return;
             }
-          });
+          }
+          if (accion === "salida") objetivo.estado = "En ruta";
+          else if (accion === "llegada") objetivo.estado = "Llegado";
+          else if (accion === "mantenimiento") objetivo.estado = "En mantenimiento";
+          else if (accion === "terminal") objetivo.estado = "En terminal";
           guardarVehiculos(vehiculos2);
           renderizar.vehiculos();
         });
@@ -639,8 +654,10 @@ document.addEventListener("DOMContentLoaded", function () {
           var info = document.getElementById("info-" + placa);
           if (!reserva) return;
           var usuario = obtenerUsuarios().find(function (u) { return u.correo === reserva.correoUsuario; });
-          var botonPago = reserva.estado === "Pendiente de confirmación"
-            ? '<button class="btn btn-primario btn-chico confirmar-pago-bus" data-id="' + reserva.id + '" data-placa="' + placa + '">✅ Confirmar pago en efectivo</button>'
+          var vehiculoFicha = obtenerVehiculos().find(function (x) { return x.placa === placa; });
+          var puedeFicha = !!vehiculoFicha && vehiculoFicha.estado === "En terminal";
+          var botonPago = reserva.estado === "Pendiente de confirmación" && puedeFicha
+            ? '<button type="button" class="btn btn-primario btn-chico confirmar-pago-bus" data-id="' + reserva.id + '" data-placa="' + placa + '">✅ Confirmar pago</button>'
             : "";
           info.innerHTML =
             '<div class="cliente-ficha">' +
