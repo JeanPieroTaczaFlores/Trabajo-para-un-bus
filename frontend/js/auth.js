@@ -1,6 +1,21 @@
 const USUARIOS_KEY = "busEmpresa_usuarios";
 const SESION_KEY = "busEmpresa_sesion";
 
+const PERSONAL_USUARIOS = [
+  { nombre: "Carlos Ramírez", correo: "carlos@personal.pe", contrasena: "andes123", telefono: "999888777", dni: "70000001", rol: "personal" },
+  { nombre: "María Torres", correo: "maria@personal.pe", contrasena: "andes123", telefono: "999888776", dni: "70000002", rol: "personal" }
+];
+
+function esPersonal(correo) {
+  return correo.toLowerCase().endsWith("@personal.pe");
+}
+
+function rutaPersonal() {
+  return window.location.pathname.includes("/pages/")
+    ? "personal.html"
+    : "pages/personal.html";
+}
+
 function obtenerUsuarios() {
   try {
     return JSON.parse(localStorage.getItem(USUARIOS_KEY)) || [];

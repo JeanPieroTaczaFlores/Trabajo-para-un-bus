@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
-  if (usuarioAutenticado()) {
-    window.location.href = "cuenta.html";
+  const sesionActiva = obtenerSesion();
+  if (sesionActiva) {
+    window.location.href = sesionActiva.rol === "personal" ? "personal.html" : "cuenta.html";
     return;
   }
 
@@ -42,13 +43,23 @@ document.addEventListener("DOMContentLoaded", function () {
       return u.correo === correo && u.contrasena === contrasena;
     });
 
-    if (!usuario) {
-      alerta.textContent = t("login.errCredenciales");
-      alerta.classList.add("visible");
+    if (usuario) {
+      guardarSesion(Object.assign({}, usuario, { rol: "cliente" }));
+      window.location.href = "cuenta.html";
       return;
     }
 
-    guardarSesion(usuario);
-    window.location.href = "cuenta.html";
+    const personal = PERSONAL_USUARIOS.find(function (u) {
+      return u.correo === correo && u.contrasena === contrasena;
+    });
+
+    if (personal) {
+      guardarSesion(personal);
+      window.location.href = "personal.html";
+      return;
+    }
+
+    alerta.textContent = t("login.errCredenciales");
+    alerta.classList.add("visible");
   });
 });

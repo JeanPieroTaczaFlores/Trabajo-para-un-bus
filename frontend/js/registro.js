@@ -64,6 +64,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!valido) return;
 
+    if (esPersonal(correo)) {
+      alerta.textContent = t("reg.emailPersonal");
+      alerta.classList.add("visible");
+      return;
+    }
+
     const usuarios = obtenerUsuarios();
     if (usuarios.some(function (u) { return u.correo === correo; })) {
       alerta.textContent = t("reg.existe");
