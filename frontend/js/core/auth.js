@@ -15,10 +15,14 @@ function esPersonal(correo) {
   return correo.toLowerCase().endsWith("@personal.pe");
 }
 
-function rutaPersonal() {
+function rutaPagina(seccion, archivo) {
   return window.location.pathname.includes("/pages/")
-    ? "personal.html"
-    : "pages/personal.html";
+    ? "../" + seccion + "/" + archivo
+    : "pages/" + seccion + "/" + archivo;
+}
+
+function rutaPersonal() {
+  return rutaPagina("personal", "personal.html");
 }
 
 function obtenerUsuarios() {
@@ -46,9 +50,11 @@ function guardarSesion(usuario) {
 }
 
 function rutaLogin() {
-  return window.location.pathname.includes("/pages/")
-    ? "login.html"
-    : "pages/login.html";
+  return rutaPagina("cliente", "login.html");
+}
+
+function rutaCuenta() {
+  return rutaPagina("cliente", "cuenta.html");
 }
 
 function cerrarSesion() {
