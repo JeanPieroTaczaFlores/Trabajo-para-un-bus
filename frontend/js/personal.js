@@ -5,28 +5,51 @@ const VEHICULOS_INICIALES = [
   { placa: "ABC-123", tipo: "Bus 2 pisos", estado: "En ruta", conductor: "Juan Pérez", azafata: "Ana Torres", viajeId: 1, viajeFecha: null },
   { placa: "DEF-456", tipo: "Bus 2 pisos", estado: "En terminal", conductor: "", azafata: "", viajeId: 4, viajeFecha: null },
   { placa: "GHI-789", tipo: "Bus 1 piso", estado: "En ruta", conductor: "Luis Gómez", azafata: "", viajeId: 9, viajeFecha: null },
-  { placa: "JKL-012", tipo: "Minibús", estado: "En mantenimiento", conductor: "", azafata: "", viajeId: null, viajeFecha: null }
+  { placa: "JKL-012", tipo: "Minibús", estado: "En mantenimiento", conductor: "", azafata: "", viajeId: null, viajeFecha: null },
+  { placa: "MNO-345", tipo: "Bus 2 pisos", estado: "En terminal", conductor: "", azafata: "", viajeId: 2, viajeFecha: null },
+  { placa: "PQR-678", tipo: "Bus 2 pisos", estado: "En terminal", conductor: "", azafata: "", viajeId: 5, viajeFecha: null },
+  { placa: "STU-901", tipo: "Bus 1 piso", estado: "En ruta", conductor: "Miguel Rojas", azafata: "Paola Vega", viajeId: 7, viajeFecha: null },
+  { placa: "VWX-234", tipo: "Minibús", estado: "En terminal", conductor: "", azafata: "", viajeId: 11, viajeFecha: null },
+  { placa: "YZA-567", tipo: "Bus 1 piso", estado: "En terminal", conductor: "", azafata: "", viajeId: 12, viajeFecha: null }
 ];
 
 const EQUIPO_INICIAL = [
-  { nombre: "Juan Pérez", rol: "conductor" },
-  { nombre: "Luis Gómez", rol: "conductor" },
-  { nombre: "Carlos Díaz", rol: "conductor" },
-  { nombre: "Ana Torres", rol: "azafata" },
-  { nombre: "Rosa Flores", rol: "azafata" },
-  { nombre: "María León", rol: "azafata" }
+  { nombre: "Juan Pérez", rol: "conductor", telefono: "987654301", dni: "45123456", anios: 12 },
+  { nombre: "Luis Gómez", rol: "conductor", telefono: "987654302", dni: "45123457", anios: 15 },
+  { nombre: "Carlos Díaz", rol: "conductor", telefono: "987654303", dni: "45123458", anios: 9 },
+  { nombre: "Ana Torres", rol: "azafata", telefono: "987654311", dni: "45123466", anios: 8 },
+  { nombre: "Rosa Flores", rol: "azafata", telefono: "987654312", dni: "45123467", anios: 10 },
+  { nombre: "María León", rol: "azafata", telefono: "987654313", dni: "45123468", anios: 7 },
+  { nombre: "Miguel Rojas", rol: "conductor", telefono: "987654304", dni: "45123459", anios: 11 },
+  { nombre: "José Contreras", rol: "conductor", telefono: "987654305", dni: "45123460", anios: 8 },
+  { nombre: "Ricardo Paredes", rol: "conductor", telefono: "987654306", dni: "45123461", anios: 14 },
+  { nombre: "Carla Mendoza", rol: "azafata", telefono: "987654314", dni: "45123469", anios: 5 },
+  { nombre: "Paola Vega", rol: "azafata", telefono: "987654315", dni: "45123470", anios: 6 },
+  { nombre: "Sofía Delgado", rol: "azafata", telefono: "987654316", dni: "45123471", anios: 9 },
+  { nombre: "Alberto Ríos", rol: "conductor", telefono: "987654307", dni: "45123462", anios: 7 },
+  { nombre: "Fernando Vargas", rol: "conductor", telefono: "987654308", dni: "45123463", anios: 10 },
+  { nombre: "Daniel Quispe", rol: "conductor", telefono: "987654309", dni: "45123464", anios: 6 },
+  { nombre: "Manuel Ortiz", rol: "conductor", telefono: "987654310", dni: "45123465", anios: 13 },
+  { nombre: "Elena Navarro", rol: "azafata", telefono: "987654317", dni: "45123472", anios: 4 },
+  { nombre: "Patricia Salas", rol: "azafata", telefono: "987654318", dni: "45123473", anios: 7 },
+  { nombre: "Verónica Soto", rol: "azafata", telefono: "987654319", dni: "45123474", anios: 6 },
+  { nombre: "Jimena Castro", rol: "azafata", telefono: "987654320", dni: "45123475", anios: 5 }
 ];
 
 function obtenerVehiculos() {
   try {
     const datos = localStorage.getItem(VEHICULOS_KEY);
-    if (datos === null) {
-      guardarVehiculos(VEHICULOS_INICIALES);
-      return VEHICULOS_INICIALES.slice();
-    }
-    const lista = JSON.parse(datos) || [];
-    let cambio = false;
+    const lista = datos === null ? [] : (JSON.parse(datos) || []);
+    let cambio = datos === null;
     const hoy = new Date().toISOString().split("T")[0];
+
+    VEHICULOS_INICIALES.forEach(function (base) {
+      if (!lista.some(function (v) { return v.placa === base.placa; })) {
+        lista.push(Object.assign({}, base));
+        cambio = true;
+      }
+    });
+
     lista.forEach(function (v) {
       if (v.viajeId === undefined || v.viajeId === null) {
         const porPlaca = VEHICULOS_INICIALES.find(function (x) { return x.placa === v.placa; });
@@ -57,11 +80,24 @@ function guardarVehiculos(vehiculos) {
 function obtenerEquipo() {
   try {
     const datos = localStorage.getItem(EQUIPO_KEY);
-    if (datos === null) {
-      guardarEquipo(EQUIPO_INICIAL);
-      return EQUIPO_INICIAL.slice();
-    }
-    return JSON.parse(datos) || [];
+    const lista = datos === null ? [] : (JSON.parse(datos) || []);
+    let cambio = datos === null;
+    EQUIPO_INICIAL.forEach(function (m) {
+      const existente = lista.find(function (x) { return x.nombre === m.nombre; });
+      if (!existente) {
+        lista.push(Object.assign({}, m));
+        cambio = true;
+      } else {
+        ["telefono", "dni", "anios"].forEach(function (campo) {
+          if (existente[campo] === undefined && m[campo] !== undefined) {
+            existente[campo] = m[campo];
+            cambio = true;
+          }
+        });
+      }
+    });
+    if (cambio) guardarEquipo(lista);
+    return lista;
   } catch {
     return [];
   }
@@ -90,7 +126,39 @@ function sembrarDatosDemo() {
     { nombre: "Jorge Huamán", correo: "jorge.huaman@outlook.com", telefono: "987555666", contrasena: "cliente123", dni: "74567890" },
     { nombre: "Renata Paredes", correo: "renata.paredes@gmail.com", telefono: "987666777", contrasena: "cliente123", dni: "75678901" },
     { nombre: "Adrián Vega", correo: "adrian.vega@gmail.com", telefono: "987777888", contrasena: "cliente123", dni: "76789012" },
-    { nombre: "Kiara Llanos", correo: "kiara.llanos@gmail.com", telefono: "987888999", contrasena: "cliente123", dni: "77890123" }
+    { nombre: "Kiara Llanos", correo: "kiara.llanos@gmail.com", telefono: "987888999", contrasena: "cliente123", dni: "77890123" },
+    { nombre: "Marco Silva", correo: "marco.silva@gmail.com", telefono: "987000111", contrasena: "cliente123", dni: "75643210" },
+    { nombre: "Camila Ríos", correo: "camila.rios@gmail.com", telefono: "987111000", contrasena: "cliente123", dni: "73567890" },
+    { nombre: "Andrés Quiroz", correo: "andres.quiroz@hotmail.com", telefono: "987222111", contrasena: "cliente123", dni: "75612340" },
+    { nombre: "Valeria Díaz", correo: "valeria.diaz@gmail.com", telefono: "987333222", contrasena: "cliente123", dni: "71654321" },
+    { nombre: "Santiago Núñez", correo: "santiago.nunez@outlook.com", telefono: "987444333", contrasena: "cliente123", dni: "76543210" },
+    { nombre: "Alejandra Ramos", correo: "alejandra.ramos@gmail.com", telefono: "987555444", contrasena: "cliente123", dni: "75432109" },
+    { nombre: "Diego Cárdenas", correo: "diego.cardenas@gmail.com", telefono: "987666555", contrasena: "cliente123", dni: "74321098" },
+    { nombre: "Fernanda Soto", correo: "fernanda.soto@hotmail.com", telefono: "987777666", contrasena: "cliente123", dni: "73210987" },
+    { nombre: "Héctor Poma", correo: "hector.poma@gmail.com", telefono: "987888777", contrasena: "cliente123", dni: "72109876" },
+    { nombre: "Gabriela Torres", correo: "gabriela.torres@gmail.com", telefono: "987999888", contrasena: "cliente123", dni: "71098765" },
+    { nombre: "Renzo Castillo", correo: "renzo.castillo@outlook.com", telefono: "988111222", contrasena: "cliente123", dni: "72987654" },
+    { nombre: "María José Lazo", correo: "mariajose.lazo@gmail.com", telefono: "988222333", contrasena: "cliente123", dni: "73876543" },
+    { nombre: "Bruno Farfán", correo: "bruno.farfan@gmail.com", telefono: "988333444", contrasena: "cliente123", dni: "74765432" },
+    { nombre: "Pamela Chuquillanqui", correo: "pamela.chuqui@gmail.com", telefono: "988444555", contrasena: "cliente123", dni: "75654321" },
+    { nombre: "Gustavo Reyna", correo: "gustavo.reyna@hotmail.com", telefono: "988555666", contrasena: "cliente123", dni: "76543212" },
+    { nombre: "Natalia Flores", correo: "natalia.flores@gmail.com", telefono: "988666777", contrasena: "cliente123", dni: "77432123" },
+    { nombre: "Elena Pizarro", correo: "elena.pizarro@gmail.com", telefono: "988777888", contrasena: "cliente123", dni: "78343210" },
+    { nombre: "Tomás Alarcón", correo: "tomas.alarcon@outlook.com", telefono: "988888999", contrasena: "cliente123", dni: "79234567" },
+    { nombre: "Milagros Herrera", correo: "milagros.herrera@gmail.com", telefono: "988999000", contrasena: "cliente123", dni: "70123456" },
+    { nombre: "Sebastián Oliva", correo: "sebastian.oliva@gmail.com", telefono: "989000111", contrasena: "cliente123", dni: "71234568" },
+    { nombre: "Alessandra Bravo", correo: "alessandra.bravo@hotmail.com", telefono: "989111222", contrasena: "cliente123", dni: "72345679" },
+    { nombre: "Fabián Roldán", correo: "fabian.roldan@gmail.com", telefono: "989222333", contrasena: "cliente123", dni: "73456780" },
+    { nombre: "Joselyn Campos", correo: "joselyn.campos@gmail.com", telefono: "989333444", contrasena: "cliente123", dni: "74567891" },
+    { nombre: "Renato Gálvez", correo: "renato.galvez@outlook.com", telefono: "989444555", contrasena: "cliente123", dni: "75678902" },
+    { nombre: "Fiorella Salazar", correo: "fiorella.salazar@gmail.com", telefono: "989555666", contrasena: "cliente123", dni: "76789013" },
+    { nombre: "Óscar Palacios", correo: "oscar.palacios@gmail.com", telefono: "989666777", contrasena: "cliente123", dni: "77890124" },
+    { nombre: "Xiomara Rivas", correo: "xiomara.rivas@hotmail.com", telefono: "989777888", contrasena: "cliente123", dni: "78901235" },
+    { nombre: "Carlos Vargas", correo: "carlos.vargas@gmail.com", telefono: "989888999", contrasena: "cliente123", dni: "79012346" },
+    { nombre: "Nicole Aguilar", correo: "nicole.aguilar@gmail.com", telefono: "989999000", contrasena: "cliente123", dni: "70123457" },
+    { nombre: "Eduardo Zúñiga", correo: "eduardo.zuniga@outlook.com", telefono: "980000111", contrasena: "cliente123", dni: "71234569" },
+    { nombre: "Lorena Tello", correo: "lorena.tello@gmail.com", telefono: "980111222", contrasena: "cliente123", dni: "72345680" },
+    { nombre: "Kevin Sandoval", correo: "kevin.sandoval@gmail.com", telefono: "980222333", contrasena: "cliente123", dni: "73456781" }
   ];
 
   const usuarios = obtenerUsuarios();
@@ -102,26 +170,123 @@ function sembrarDatosDemo() {
     guardarUsuarios(usuarios);
   }
 
-  const base = 900000000;
+  function viajePorId(id) {
+    return VIAJES.find(function (v) { return v.id === id; });
+  }
+
+  function nuevaReserva(id, cliente, viaje, fecha, asientos, metodoPago, estado) {
+    let total = 0;
+    asientos.forEach(function (numero) {
+      total += precioAsiento(viaje, numero);
+    });
+    const planFamiliar = asientos.length >= 6;
+    if (planFamiliar) total = total * (1 - 0.10);
+    return {
+      id: id,
+      correoUsuario: cliente.correo,
+      viajeId: viaje.id,
+      origen: viaje.origen,
+      destino: viaje.destino,
+      hora: viaje.hora,
+      duracion: viaje.duracion,
+      fecha: fecha,
+      asiento: asientos,
+      pasajeros: asientos.length,
+      total: total,
+      metodoPago: metodoPago,
+      planFamiliar: planFamiliar,
+      estado: estado,
+      fechaReserva: new Date().toISOString()
+    };
+  }
+
+  function agregarReservas(semilla) {
+    const reservas = obtenerReservas();
+    const nuevasReservas = semilla.filter(function (r) {
+      return !reservas.some(function (x) { return x.id === r.id; });
+    });
+    if (nuevasReservas.length > 0) {
+      reservas.push.apply(reservas, nuevasReservas);
+      localStorage.setItem(RESERVAS_KEY, JSON.stringify(reservas));
+    }
+  }
+
+  const v1 = viajePorId(1);
+  const v2 = viajePorId(2);
+  const v4 = viajePorId(4);
+  const v5 = viajePorId(5);
+  const v7 = viajePorId(7);
+  const v9 = viajePorId(9);
+
   const semillaReservas = [
-    { id: base + 1, correoUsuario: "luis.mendoza@gmail.com", viajeId: 1, origen: "Lima", destino: "Arequipa", hora: "06:00", duracion: "16h", fecha: hoy, asiento: [3, 4], pasajeros: 2, total: 267, metodoPago: "efectivo", planFamiliar: false, estado: "Pendiente de confirmación", fechaReserva: new Date().toISOString() },
-    { id: base + 2, correoUsuario: "diana.quispe@hotmail.com", viajeId: 1, origen: "Lima", destino: "Arequipa", hora: "06:00", duracion: "16h", fecha: hoy, asiento: [7], pasajeros: 1, total: 133.5, metodoPago: "tarjeta", planFamiliar: false, estado: "Confirmada", fechaReserva: new Date().toISOString() },
-    { id: base + 3, correoUsuario: "pedro.salas@gmail.com", viajeId: 1, origen: "Lima", destino: "Arequipa", hora: "06:00", duracion: "16h", fecha: hoy, asiento: [9], pasajeros: 1, total: 133.5, metodoPago: "yape", planFamiliar: false, estado: "Confirmada", fechaReserva: new Date().toISOString() },
-    { id: base + 4, correoUsuario: "renata.paredes@gmail.com", viajeId: 1, origen: "Lima", destino: "Arequipa", hora: "06:00", duracion: "16h", fecha: hoy, asiento: [12], pasajeros: 1, total: 133.5, metodoPago: "efectivo", planFamiliar: false, estado: "Pendiente de confirmación", fechaReserva: new Date().toISOString() },
-    { id: base + 5, correoUsuario: "kiara.llanos@gmail.com", viajeId: 1, origen: "Lima", destino: "Arequipa", hora: "06:00", duracion: "16h", fecha: hoy, asiento: [15], pasajeros: 1, total: 133.5, metodoPago: "yape", planFamiliar: false, estado: "Confirmada", fechaReserva: new Date().toISOString() },
-    { id: base + 6, correoUsuario: "lucia.castro@gmail.com", viajeId: 4, origen: "Lima", destino: "Cusco", hora: "07:30", duracion: "21h", fecha: hoy, asiento: [22, 23, 24], pasajeros: 3, total: 297, metodoPago: "efectivo", planFamiliar: false, estado: "Pendiente de confirmación", fechaReserva: new Date().toISOString() },
-    { id: base + 7, correoUsuario: "jorge.huaman@outlook.com", viajeId: 4, origen: "Lima", destino: "Cusco", hora: "07:30", duracion: "21h", fecha: hoy, asiento: [26], pasajeros: 1, total: 99, metodoPago: "transferencia", planFamiliar: false, estado: "Confirmada", fechaReserva: new Date().toISOString() },
-    { id: base + 8, correoUsuario: "adrian.vega@gmail.com", viajeId: 4, origen: "Lima", destino: "Cusco", hora: "07:30", duracion: "21h", fecha: hoy, asiento: [30], pasajeros: 1, total: 99, metodoPago: "tarjeta", planFamiliar: false, estado: "Confirmada", fechaReserva: new Date().toISOString() }
+    nuevaReserva(900000001, clientes[0], v1, hoy, [3, 4], "efectivo", "Pendiente de confirmación"),
+    nuevaReserva(900000002, clientes[1], v1, hoy, [7], "tarjeta", "Confirmada"),
+    nuevaReserva(900000003, clientes[2], v1, hoy, [9], "yape", "Confirmada"),
+    nuevaReserva(900000004, clientes[5], v1, hoy, [12], "efectivo", "Pendiente de confirmación"),
+    nuevaReserva(900000005, clientes[7], v1, hoy, [15], "yape", "Confirmada"),
+    nuevaReserva(900000006, clientes[3], v4, hoy, [22, 23, 24], "efectivo", "Pendiente de confirmación"),
+    nuevaReserva(900000007, clientes[4], v4, hoy, [26], "transferencia", "Confirmada"),
+    nuevaReserva(900000008, clientes[6], v4, hoy, [30], "tarjeta", "Confirmada"),
+    nuevaReserva(900100001, clientes[8], v1, hoy, [2], "efectivo", "Pendiente de confirmación"),
+    nuevaReserva(900100002, clientes[9], v1, hoy, [6], "tarjeta", "Confirmada"),
+    nuevaReserva(900100003, clientes[10], v1, hoy, [10, 11], "efectivo", "Pendiente de confirmación"),
+    nuevaReserva(900100004, clientes[11], v1, hoy, [14], "yape", "Confirmada"),
+    nuevaReserva(900100005, clientes[12], v1, hoy, [16, 17], "tarjeta", "Confirmada"),
+    nuevaReserva(900100006, clientes[13], v4, hoy, [21], "efectivo", "Pendiente de confirmación"),
+    nuevaReserva(900100007, clientes[14], v4, hoy, [25, 28], "yape", "Confirmada"),
+    nuevaReserva(900100008, clientes[15], v4, hoy, [31, 32], "efectivo", "Pendiente de confirmación"),
+    nuevaReserva(900100009, clientes[16], v9, hoy, [1], "tarjeta", "Confirmada"),
+    nuevaReserva(900100010, clientes[17], v9, hoy, [3, 5], "efectivo", "Pendiente de confirmación"),
+    nuevaReserva(900100011, clientes[18], v9, hoy, [7], "transferencia", "Confirmada"),
+    nuevaReserva(900100012, clientes[19], v9, hoy, [22, 24], "yape", "Confirmada"),
+    nuevaReserva(900100013, clientes[20], v9, hoy, [26], "tarjeta", "Confirmada"),
+    nuevaReserva(900100014, clientes[21], v2, hoy, [4, 5], "efectivo", "Pendiente de confirmación"),
+    nuevaReserva(900100015, clientes[22], v2, hoy, [9], "tarjeta", "Confirmada"),
+    nuevaReserva(900100016, clientes[23], v2, hoy, [12, 13], "yape", "Confirmada"),
+    nuevaReserva(900100017, clientes[24], v2, hoy, [16], "efectivo", "Pendiente de confirmación"),
+    nuevaReserva(900100018, clientes[25], v5, hoy, [21], "transferencia", "Confirmada"),
+    nuevaReserva(900100019, clientes[26], v5, hoy, [24, 25], "efectivo", "Pendiente de confirmación"),
+    nuevaReserva(900100020, clientes[27], v5, hoy, [28], "tarjeta", "Confirmada"),
+    nuevaReserva(900100021, clientes[28], v5, hoy, [30, 31], "yape", "Confirmada"),
+    nuevaReserva(900100022, clientes[29], v7, hoy, [2], "tarjeta", "Confirmada"),
+    nuevaReserva(900100023, clientes[30], v7, hoy, [5, 6], "efectivo", "Pendiente de confirmación"),
+    nuevaReserva(900100024, clientes[31], v7, hoy, [9], "transferencia", "Confirmada"),
+    nuevaReserva(900100025, clientes[32], v7, hoy, [11, 12], "yape", "Confirmada")
   ];
 
-  const reservas = obtenerReservas();
-  const nuevasReservas = semillaReservas.filter(function (r) {
-    return !reservas.some(function (x) { return x.id === r.id; });
+  agregarReservas(semillaReservas);
+
+  const metodos = ["tarjeta", "yape", "tarjeta", "transferencia", "yape", "tarjeta", "efectivo"];
+  let idHistorial = 910000000;
+  const fechaActual = new Date();
+
+  const historial = [];
+  VIAJES.forEach(function (viaje) {
+    for (let anio = 0; anio < 20; anio++) {
+      for (let turno = 0; turno < 3; turno++) {
+        const fecha = new Date(fechaActual.getFullYear() - anio, (turno * 4 + viaje.id) % 12, 8 + ((viaje.id * 3 + turno) % 20));
+        const fechaStr = fecha.toISOString().split("T")[0];
+        if (fechaStr > hoy) continue;
+
+        const cliente = clientes[(viaje.id + anio + turno) % clientes.length];
+        const asiento1 = ((viaje.id * 5 + anio * 3 + turno) % 20) + 1;
+        const asiento2 = ((viaje.id * 7 + anio * 5 + turno) % 44) + 21;
+        const estado = (viaje.id + anio + turno) % 7 === 0 ? "Liberado" : "Confirmada";
+        historial.push(nuevaReserva(idHistorial++, cliente, viaje, fechaStr, [asiento1, asiento2], metodos[(viaje.id + anio + turno) % metodos.length], estado));
+      }
+    }
   });
-  if (nuevasReservas.length > 0) {
-    reservas.push.apply(reservas, nuevasReservas);
-    localStorage.setItem(RESERVAS_KEY, JSON.stringify(reservas));
+
+  for (let i = 0; i < 16; i++) {
+    const viaje = VIAJES[i % VIAJES.length];
+    const fecha = new Date(fechaActual.getFullYear() - (1 + (i % 4)), i, 15);
+    const fechaStr = fecha.toISOString().split("T")[0];
+    if (fechaStr > hoy) continue;
+    const asientos = [1 + i, 2 + i, 3 + i, 21 + i, 22 + i, 23 + i, 24 + i];
+    historial.push(nuevaReserva(idHistorial++, clientes[i], viaje, fechaStr, asientos, "tarjeta", "Confirmada"));
   }
+
+  agregarReservas(historial);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -138,10 +303,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const secciones = {
     resumen: "📊 Resumen",
     clientes: "👥 Clientes",
+    reservas: "🎫 Reservas",
+    pagos: "💵 Pagos por confirmar",
+    historial: "📜 Historial",
     viajes: "🚌 Viajes",
     nuevo: "➕ Nuevo viaje",
     vehiculos: "🚍 Vehículos",
-    equipo: "🧑‍✈️ Equipo"
+    conductores: "🧑‍✈️ Conductores",
+    azafatas: "👩‍✈️ Azafatas"
   };
 
   function nombreCorto() {
@@ -192,6 +361,37 @@ document.addEventListener("DOMContentLoaded", function () {
     else if (estado === "En mantenimiento") clase += " estado-mantenimiento";
     else clase += " estado-terminal";
     return '<span class="' + clase + '">' + estado + '</span>';
+  }
+
+  function fichaReserva(r) {
+    const usuario = obtenerUsuarios().find(function (u) { return u.correo === r.correoUsuario; });
+    const boton = r.estado === "Pendiente de confirmación"
+      ? '<button class="btn btn-primario btn-chico confirmar-pago" data-id="' + r.id + '">✅ Confirmar pago (efectivo)</button>'
+      : "";
+    return (
+      '<div class="reserva-item">' +
+        '<div><strong>' + r.origen + ' → ' + r.destino + '</strong> · ' + r.fecha + ' · ' + r.hora + '</div>' +
+        '<div class="viaje-info">' + (usuario ? usuario.nombre : r.correoUsuario) + ' · Asientos: ' + (r.asiento || []).join(", ") + ' · ' + r.pasajeros + ' pasajero(s) · S/ ' + Number(r.total).toFixed(2) + ' · ' + r.metodoPago + '</div>' +
+        '<div>' + estadoBadge(r.estado) + '</div>' +
+        boton +
+      '</div>'
+    );
+  }
+
+  function confirmarPagoDeBoton(boton) {
+    boton.addEventListener("click", function () {
+      var reservas2 = obtenerReservas();
+      reservas2.forEach(function (r) {
+        if (r.id === parseInt(boton.getAttribute("data-id"), 10)) {
+          r.estado = "Confirmada";
+        }
+      });
+      localStorage.setItem(RESERVAS_KEY, JSON.stringify(reservas2));
+      var activa = document.querySelector(".panel-menu-btn.activa");
+      if (activa && renderizar[activa.getAttribute("data-seccion")]) {
+        renderizar[activa.getAttribute("data-seccion")]();
+      }
+    });
   }
 
   function clientesPorAsiento(viajeId, fecha) {
@@ -304,12 +504,47 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
+  function renderEquipoRol(rol, titulo) {
+    var caja = document.querySelector('.panel-seccion[data-seccion="' + rol + '"]');
+    var lista = obtenerEquipo().filter(function (m) { return m.rol === rol; });
+    if (lista.length === 0) {
+      caja.innerHTML = '<h2 class="seccion-titulo">' + titulo + '</h2><p class="vacio">No hay miembros registrados en este grupo.</p>';
+      return;
+    }
+    var rolClase = rol === "conductor" ? "estado-en-ruta" : "estado-llegado";
+    var rolTexto = rol === "conductor" ? "🧑‍✈️ Conductor" : "👩‍✈️ Azafata";
+    var html = lista.map(function (m) {
+      return (
+        '<div class="equipo-item">' +
+          '<div class="equipo-item-cabecera">' +
+            '<strong>' + m.nombre + '</strong>' +
+            '<span class="estado ' + rolClase + '">' + rolTexto + '</span>' +
+          '</div>' +
+          '<div class="equipo-item-info">' +
+            '<span>📱 ' + (m.telefono || "—") + '</span>' +
+            '<span>🪪 DNI: ' + (m.dni || "—") + '</span>' +
+            '<span>🕰️ ' + (m.anios || 0) + ' años de experiencia</span>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join("");
+    caja.innerHTML =
+      '<h2 class="seccion-titulo">' + titulo + ' (' + lista.length + ')</h2>' +
+      '<div class="nota-aviso visible">🔒 Lista de personal de la empresa. Los cambios solo los realiza la administración.</div>' +
+      '<div class="equipo-lista">' + html + '</div>';
+  }
+
   var renderizar = {
     resumen: function () {
       var usuarios = obtenerUsuarios();
       var reservas = obtenerReservas();
+      var equipo = obtenerEquipo();
       var pendientes = reservas.filter(function (r) { return r.estado === "Pendiente de confirmación"; }).length;
       var enRuta = obtenerVehiculos().filter(function (v) { return v.estado === "En ruta"; }).length;
+      var hoy = new Date().toISOString().split("T")[0];
+      var historico = reservas.filter(function (r) { return (r.fecha || "") < hoy; }).length;
+      var conductores = equipo.filter(function (m) { return m.rol === "conductor"; }).length;
+      var azafatas = equipo.filter(function (m) { return m.rol === "azafata"; }).length;
 
       document.querySelector('.panel-seccion[data-seccion="resumen"]').innerHTML =
         '<div class="resumen-grid">' +
@@ -317,8 +552,11 @@ document.addEventListener("DOMContentLoaded", function () {
           '<div class="tarjeta"><div class="icono">🎫</div><h3>Reservas totales</h3><p class="resumen-num">' + reservas.length + '</p></div>' +
           '<div class="tarjeta"><div class="icono">⏳</div><h3>Pagos por confirmar</h3><p class="resumen-num">' + pendientes + '</p></div>' +
           '<div class="tarjeta"><div class="icono">🚍</div><h3>Vehículos en ruta</h3><p class="resumen-num">' + enRuta + '</p></div>' +
+          '<div class="tarjeta"><div class="icono">🧑‍✈️</div><h3>Conductores</h3><p class="resumen-num">' + conductores + '</p></div>' +
+          '<div class="tarjeta"><div class="icono">👩‍✈️</div><h3>Azafatas</h3><p class="resumen-num">' + azafatas + '</p></div>' +
+          '<div class="tarjeta"><div class="icono">📜</div><h3>Historial de viajes</h3><p class="resumen-num">' + historico + '</p></div>' +
         '</div>' +
-        '<div class="nota-aviso visible">💡 Usa el menú lateral: revisa clientes, crea viajes, controla la salida/llegada de los buses y toca un asiento ocupado para ver quién viaja en él.</div>';
+        '<div class="nota-aviso visible">💡 Usa el menú lateral: revisa clientes, reservas y pagos por confirmar, consulta el historial, crea viajes, controla la salida/llegada de los buses y toca un asiento ocupado para ver quién viaja en él.</div>';
     },
 
     clientes: function () {
@@ -372,6 +610,94 @@ document.addEventListener("DOMContentLoaded", function () {
           renderizar.clientes();
         });
       });
+    },
+
+    reservas: function () {
+      var caja = document.querySelector('.panel-seccion[data-seccion="reservas"]');
+      var hoy = new Date().toISOString().split("T")[0];
+      var activas = obtenerReservas().filter(function (r) {
+        return (r.fecha || "") >= hoy;
+      }).sort(function (a, b) {
+        return (a.fecha + " " + a.hora).localeCompare(b.fecha + " " + b.hora);
+      });
+
+      if (activas.length === 0) {
+        caja.innerHTML = '<h2 class="seccion-titulo">Reservas</h2><p class="vacio">No hay reservas para hoy o fechas próximas.</p>';
+        return;
+      }
+
+      var confirmadas = activas.filter(function (r) { return r.estado === "Confirmada"; }).length;
+      var pendientes = activas.filter(function (r) { return r.estado === "Pendiente de confirmación"; }).length;
+
+      caja.innerHTML =
+        '<h2 class="seccion-titulo">Reservas de hoy y próximas (' + activas.length + ')</h2>' +
+        '<div class="resumen-grid">' +
+          '<div class="tarjeta"><div class="icono">✅</div><h3>Confirmadas</h3><p class="resumen-num">' + confirmadas + '</p></div>' +
+          '<div class="tarjeta"><div class="icono">⏳</div><h3>Pendientes de pago</h3><p class="resumen-num">' + pendientes + '</p></div>' +
+        '</div>' +
+        activas.map(fichaReserva).join("");
+
+      caja.querySelectorAll(".confirmar-pago").forEach(confirmarPagoDeBoton);
+    },
+
+    pagos: function () {
+      var caja = document.querySelector('.panel-seccion[data-seccion="pagos"]');
+      var pendientes = obtenerReservas().filter(function (r) {
+        return r.estado === "Pendiente de confirmación";
+      }).sort(function (a, b) {
+        return (b.fecha + " " + b.hora).localeCompare(a.fecha + " " + a.hora);
+      });
+
+      if (pendientes.length === 0) {
+        caja.innerHTML = '<h2 class="seccion-titulo">Pagos por confirmar</h2><p class="vacio">✅ No hay pagos en efectivo pendientes de confirmar.</p>';
+        return;
+      }
+
+      var totalPendiente = 0;
+      pendientes.forEach(function (r) { totalPendiente += Number(r.total) || 0; });
+
+      caja.innerHTML =
+        '<h2 class="seccion-titulo">Pagos en efectivo por confirmar (' + pendientes.length + ')</h2>' +
+        '<div class="nota-aviso visible">💵 Confirma el pago de cada reserva cuando el cliente llegue al terminal. Importe total por confirmar: <strong>S/ ' + totalPendiente.toFixed(2) + '</strong>. Recuerda: los pagos deben confirmarse antes de la salida del bus.</div>' +
+        pendientes.map(fichaReserva).join("");
+
+      caja.querySelectorAll(".confirmar-pago").forEach(confirmarPagoDeBoton);
+    },
+
+    historial: function () {
+      var caja = document.querySelector('.panel-seccion[data-seccion="historial"]');
+      var hoy = new Date().toISOString().split("T")[0];
+      var historico = obtenerReservas().filter(function (r) {
+        return (r.fecha || "") < hoy;
+      });
+
+      if (historico.length === 0) {
+        caja.innerHTML = '<h2 class="seccion-titulo">Historial</h2><p class="vacio">Aún no hay viajes pasados registrados.</p>';
+        return;
+      }
+
+      var porAnio = {};
+      historico.forEach(function (r) {
+        var anio = (r.fecha || "").slice(0, 4) || "Sin año";
+        (porAnio[anio] = porAnio[anio] || []).push(r);
+      });
+      var anios = Object.keys(porAnio).sort().reverse();
+
+      var html = '<h2 class="seccion-titulo">Historial de viajes (' + historico.length + ')</h2>' +
+        '<div class="nota-aviso visible">📅 Registros de viajes anteriores agrupados por año, correspondientes a más de 20 años de historia de Andesbus.</div>';
+
+      anios.forEach(function (anio) {
+        var lista = porAnio[anio];
+        html +=
+          '<details class="cliente-item">' +
+            '<summary><span><strong>📅 ' + anio + '</strong></span>' +
+            '<span class="estado estado-terminal">' + lista.length + ' reserva(s)</span></summary>' +
+            '<div class="cliente-detalle">' + lista.map(fichaReserva).join("") + '</div>' +
+          '</details>';
+      });
+
+      caja.innerHTML = html;
+      caja.querySelectorAll(".confirmar-pago").forEach(confirmarPagoDeBoton);
     },
 
     viajes: function () {
@@ -696,23 +1022,12 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     },
 
-    equipo: function () {
-      var equipo = obtenerEquipo();
-      var caja = document.querySelector('.panel-seccion[data-seccion="equipo"]');
+    conductores: function () {
+      renderEquipoRol("conductor", "🧑‍✈️ Conductores");
+    },
 
-      var lista = equipo.map(function (m) {
-        var rolClase = m.rol === "conductor" ? "estado-en-ruta" : "estado-llegado";
-        return (
-          '<div class="equipo-item">' +
-            '<span><strong>' + m.nombre + '</strong> <span class="estado ' + rolClase + '">' + (m.rol === "conductor" ? "🧑‍✈️ Conductor" : "👩‍✈️ Azafata") + '</span></span>' +
-          '</div>'
-        );
-      }).join("");
-
-      caja.innerHTML =
-        '<h2 class="seccion-titulo">Equipo de trabajo (' + equipo.length + ')</h2>' +
-        '<div class="nota-aviso visible">🔒 Lista de personal de la empresa. Los cambios solo los realiza la administración.</div>' +
-        '<div class="equipo-lista">' + lista + '</div>';
+    azafatas: function () {
+      renderEquipoRol("azafata", "👩‍✈️ Azafatas");
     }
   };
 
