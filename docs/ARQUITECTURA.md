@@ -6,7 +6,7 @@
 - **Sin framework ni librerías externas**: todo se construye con JavaScript vanilla.
 - **Sin backend**: la aplicación es 100 % de cliente. El directorio `backend/` existe como reserva pero no se usa.
 - **Persistencia**: `localStorage` del navegador. No hay base de datos.
-- **Idiomas**: español (es) e inglés (en) mediante un diccionario propio en `js/i18n.js`.
+- **Idiomas**: español (es) e inglés (en) mediante un diccionario propio en `js/core/i18n.js`.
 
 ## 2. Estructura de archivos
 
@@ -15,27 +15,34 @@ frontend/
 ├── index.html              # Página de inicio (hero, ventajas, rutas principales)
 ├── css/style.css           # Estilos globales, layout, tema claro/oscuro y accesibilidad
 ├── assets/logo.svg         # Logo de Andesbus
-├── pages/                  # Páginas internas
-│   ├── nosotros.html       # Misión, visión, flota y valores
-│   ├── rutas.html          # Búsqueda de viajes por origen/destino
-│   ├── reservas.html       # Selección de asientos y pago
-│   ├── login.html          # Inicio de sesión (cliente o personal)
-│   ├── registro.html       # Alta de cuentas de clientes
-│   ├── cuenta.html         # Datos y reservas del cliente
-│   ├── contacto.html       # Formulario de contacto
-│   └── personal.html       # Panel del personal (requiere sesión de personal)
+├── pages/
+│   ├── publica/            # Páginas públicas (sin sesión)
+│   │   ├── nosotros.html   # Misión, visión, flota y valores
+│   │   └── contacto.html   # Formulario de contacto
+│   ├── cliente/            # Páginas del cliente (requieren sesión)
+│   │   ├── rutas.html      # Búsqueda de viajes por origen/destino
+│   │   ├── reservas.html   # Selección de asientos y pago
+│   │   ├── login.html      # Inicio de sesión (cliente o personal)
+│   │   ├── registro.html   # Alta de cuentas de clientes
+│   │   └── cuenta.html     # Datos y reservas del cliente
+│   └── personal/
+│       └── personal.html   # Panel del personal (requiere sesión de personal)
 └── js/
-    ├── datos.js            # VIAJES (catálogo), claves de almacenamiento y precio de asientos
-    ├── auth.js             # Gestión de usuarios, sesión y credenciales del personal
-    ├── i18n.js             # Diccionario ES/EN y funciones t(), aplicarIdioma()
-    ├── main.js             # Menú móvil, sesión en navbar, panel de accesibilidad y WhatsApp
-    ├── rutas.js            # Filtrado y renderizado de viajes
-    ├── reservas.js         # Plano del bus, validación y guardado de reservas
-    ├── cuenta.js           # Renderizado de la cuenta del cliente
-    ├── login.js            # Autenticación de clientes y personal
-    ├── registro.js         # Validación del formulario de registro
-    ├── contacto.js         # Validación del formulario de contacto
-    └── personal.js         # Panel del personal (flota, equipo, viajes y pagos)
+    ├── core/               # Núcleo compartido (se carga en todas las páginas)
+    │   ├── datos.js        # VIAJES (catálogo), claves de almacenamiento y precio de asientos
+    │   ├── auth.js         # Gestión de usuarios, sesión y credenciales del personal
+    │   ├── i18n.js         # Diccionario ES/EN y funciones t(), aplicarIdioma()
+    │   └── main.js         # Menú móvil, sesión en navbar, panel de accesibilidad y WhatsApp
+    ├── publica/
+    │   └── contacto.js     # Validación del formulario de contacto
+    ├── cliente/
+    │   ├── rutas.js        # Filtrado y renderizado de viajes
+    │   ├── reservas.js     # Plano del bus, validación y guardado de reservas
+    │   ├── login.js        # Autenticación de clientes y personal
+    │   ├── registro.js     # Validación del formulario de registro
+    │   └── cuenta.js       # Renderizado de la cuenta del cliente
+    └── personal/
+        └── personal.js     # Panel del personal (flota, equipo, viajes, pagos, sedes y bitácora)
 ```
 
 ## 3. Modelo de datos (`localStorage`)
@@ -47,8 +54,9 @@ Todas las claves tienen el prefijo `busEmpresa_`.
 | `busEmpresa_usuarios` | Lista de cuentas de clientes | `[{ nombre, correo, telefono, contrasena }]` |
 | `busEmpresa_sesion` | Usuario con sesión activa | `{ nombre, correo, rol: "cliente" \| "personal", ... }` |
 | `busEmpresa_reservas` | Reservas registradas | `[{ id, correoUsuario, viajeId, origen, destino, hora, duracion, fecha, asiento[], pasajeros, total, metodoPago, planFamiliar, estado, fechaReserva }]` |
-| `busEmpresa_vehiculos` | Flota de buses | `[{ placa, tipo, estado, conductor, azafata, viajeId, viajeFecha }]` |
+| `busEmpresa_vehiculos` | Flota de buses | `[{ placa, tipo, estado, sede, conductor, azafata, viajeId, viajeFecha }]` |
 | `busEmpresa_equipo` | Lista de conductores y azafatas | `[{ nombre, rol }]` |
+| `busEmpresa_actividad` | Bitácora de recorridos y traslados | `[{ id, fecha, hora, tipo: "recorrido" \| "traslado", placa, conductor, origen, destino, estado }]` |
 | `busEmpresa_viajes_personal` | Viajes creados por el personal | `[{ id, origen, destino, fecha, hora, duracion, precio, personal: true }]` |
 | `busEmpresa_idioma` | Idioma activo | `"es"` o `"en"` |
 | `busEmpresa_accesibilidad` | Configuración del panel de accesibilidad | `{ tamano, noche, mascara, contraste, ... }` |
@@ -63,7 +71,11 @@ Todas las claves tienen el prefijo `busEmpresa_`.
 
 - `En terminal` · `En ruta` · `Llegado` · `En mantenimiento`
 
-## 4. Catálogo de viajes (`VIAJES` en `datos.js`)
+### Sedes de los vehículos
+
+Cada bus tiene una `sede` (una de las 5 ciudades). Solo puede tomar rutas cuyo origen coincida con su sede; el selector de viaje del panel filtra por ella. Al marcar **llegada**, el bus queda *Llegado* con `sede = destino` de la ruta. Para operar desde otra sede debe registrarse un **traslado** (botón *🔄 Trasladar a sede*), que queda anotado en la bitácora.
+
+## 4. Catálogo de viajes (`VIAJES` en `js/core/datos.js`)
 
 Viajes programados de forma fija (12 registros) entre 5 ciudades:
 

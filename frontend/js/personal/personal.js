@@ -2,15 +2,15 @@ const VEHICULOS_KEY = "busEmpresa_vehiculos";
 const EQUIPO_KEY = "busEmpresa_equipo";
 
 const VEHICULOS_INICIALES = [
-  { placa: "ABC-123", tipo: "Bus 2 pisos", estado: "En ruta", conductor: "Juan Pérez", azafata: "Ana Torres", viajeId: 1, viajeFecha: null },
-  { placa: "DEF-456", tipo: "Bus 2 pisos", estado: "En terminal", conductor: "", azafata: "", viajeId: 4, viajeFecha: null },
-  { placa: "GHI-789", tipo: "Bus 1 piso", estado: "En ruta", conductor: "Luis Gómez", azafata: "", viajeId: 9, viajeFecha: null },
-  { placa: "JKL-012", tipo: "Minibús", estado: "En mantenimiento", conductor: "", azafata: "", viajeId: null, viajeFecha: null },
-  { placa: "MNO-345", tipo: "Bus 2 pisos", estado: "En terminal", conductor: "", azafata: "", viajeId: 2, viajeFecha: null },
-  { placa: "PQR-678", tipo: "Bus 2 pisos", estado: "En terminal", conductor: "", azafata: "", viajeId: 5, viajeFecha: null },
-  { placa: "STU-901", tipo: "Bus 1 piso", estado: "En ruta", conductor: "Miguel Rojas", azafata: "Paola Vega", viajeId: 7, viajeFecha: null },
-  { placa: "VWX-234", tipo: "Minibús", estado: "En terminal", conductor: "", azafata: "", viajeId: 11, viajeFecha: null },
-  { placa: "YZA-567", tipo: "Bus 1 piso", estado: "En terminal", conductor: "", azafata: "", viajeId: 12, viajeFecha: null }
+  { placa: "ABC-123", tipo: "Bus 2 pisos", estado: "En ruta", conductor: "Juan Pérez", azafata: "Ana Torres", viajeId: 1, viajeFecha: null, sede: "Arequipa" },
+  { placa: "DEF-456", tipo: "Bus 2 pisos", estado: "En terminal", conductor: "", azafata: "", viajeId: 4, viajeFecha: null, sede: "Lima" },
+  { placa: "GHI-789", tipo: "Bus 1 piso", estado: "En ruta", conductor: "Luis Gómez", azafata: "", viajeId: 9, viajeFecha: null, sede: "Trujillo" },
+  { placa: "JKL-012", tipo: "Minibús", estado: "En mantenimiento", conductor: "", azafata: "", viajeId: null, viajeFecha: null, sede: "Lima" },
+  { placa: "MNO-345", tipo: "Bus 2 pisos", estado: "En terminal", conductor: "", azafata: "", viajeId: 2, viajeFecha: null, sede: "Lima" },
+  { placa: "PQR-678", tipo: "Bus 2 pisos", estado: "En terminal", conductor: "", azafata: "", viajeId: 5, viajeFecha: null, sede: "Lima" },
+  { placa: "STU-901", tipo: "Bus 1 piso", estado: "En ruta", conductor: "Miguel Rojas", azafata: "Paola Vega", viajeId: 7, viajeFecha: null, sede: "Cusco" },
+  { placa: "VWX-234", tipo: "Minibús", estado: "En terminal", conductor: "", azafata: "", viajeId: 11, viajeFecha: null, sede: "Cusco" },
+  { placa: "YZA-567", tipo: "Bus 1 piso", estado: "En terminal", conductor: "", azafata: "", viajeId: 12, viajeFecha: null, sede: "Puno" }
 ];
 
 const EQUIPO_INICIAL = [
@@ -65,6 +65,15 @@ function obtenerVehiculos() {
         v.viajeFecha = hoy;
         cambio = true;
       }
+      if (v.sede === undefined) {
+        const viaje = v.viajeId ? todosLosViajes().find(function (x) { return x.id === v.viajeId; }) : null;
+        if (viaje) {
+          v.sede = (v.estado === "En ruta" || v.estado === "Llegado") ? viaje.destino : viaje.origen;
+        } else {
+          v.sede = "Lima";
+        }
+        cambio = true;
+      }
     });
     if (cambio) guardarVehiculos(lista);
     return lista;
@@ -105,6 +114,54 @@ function obtenerEquipo() {
 
 function guardarEquipo(equipo) {
   localStorage.setItem(EQUIPO_KEY, JSON.stringify(equipo));
+}
+
+const SEDES = ["Lima", "Arequipa", "Cusco", "Trujillo", "Puno"];
+const ACTIVIDAD_KEY = "busEmpresa_actividad";
+
+function obtenerActividad() {
+  try {
+    return JSON.parse(localStorage.getItem(ACTIVIDAD_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function guardarActividad(actividad) {
+  localStorage.setItem(ACTIVIDAD_KEY, JSON.stringify(actividad));
+}
+
+function horaActual() {
+  return new Date().toTimeString().split(" ")[0].substring(0, 5);
+}
+
+function registrarActividad(tipo, placa, conductor, origen, destino, estado) {
+  const actividad = obtenerActividad();
+  actividad.push({
+    id: Date.now() + Math.floor(Math.random() * 1000),
+    fecha: new Date().toISOString().split("T")[0],
+    hora: horaActual(),
+    tipo: tipo,
+    placa: placa,
+    conductor: conductor || "",
+    origen: origen || "",
+    destino: destino || "",
+    estado: estado || ""
+  });
+  guardarActividad(actividad);
+}
+
+function completarRecorrido(placa) {
+  const actividad = obtenerActividad();
+  for (let i = actividad.length - 1; i >= 0; i--) {
+    const a = actividad[i];
+    if (a.tipo === "recorrido" && a.placa === placa && a.estado === "En ruta") {
+      a.estado = "Completado";
+      a.horaLlegada = horaActual();
+      break;
+    }
+  }
+  guardarActividad(actividad);
 }
 
 function obtenerReservas() {
@@ -287,6 +344,20 @@ function sembrarDatosDemo() {
   }
 
   agregarReservas(historial);
+
+  if (obtenerActividad().length === 0) {
+    obtenerVehiculos().forEach(function (v) {
+      if (v.estado === "En ruta" && v.viajeId) {
+        const viaje = todosLosViajes().find(function (x) { return x.id === v.viajeId; });
+        if (viaje) {
+          registrarActividad("recorrido", v.placa, v.conductor, viaje.origen, viaje.destino, "En ruta");
+        }
+      }
+    });
+    registrarActividad("traslado", "MNO-345", "", "Lima", "Arequipa", "");
+    registrarActividad("traslado", "VWX-234", "", "Lima", "Cusco", "");
+    registrarActividad("traslado", "YZA-567", "", "Lima", "Puno", "");
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -310,7 +381,8 @@ document.addEventListener("DOMContentLoaded", function () {
     nuevo: "➕ Nuevo viaje",
     vehiculos: "🚍 Vehículos",
     conductores: "🧑‍✈️ Conductores",
-    azafatas: "👩‍✈️ Azafatas"
+    azafatas: "👩‍✈️ Azafatas",
+    bitacora: "🧭 Recorridos y traslados"
   };
 
   function nombreCorto() {
@@ -837,9 +909,10 @@ document.addEventListener("DOMContentLoaded", function () {
         return opcionesHtml;
       }
 
-      function opcionesViajes(asignado) {
+      function opcionesViajes(asignado, soloSede) {
         var opcionesHtml = '<option value="">— Sin viaje asignado —</option>';
         todosLosViajes().forEach(function (v) {
+          if (soloSede && v.origen !== soloSede) return;
           var sel = v.id === asignado ? " selected" : "";
           opcionesHtml += '<option value="' + v.id + '"' + sel + '>' + v.origen + ' → ' + v.destino + ' · ' + v.hora + '</option>';
         });
@@ -852,6 +925,21 @@ document.addEventListener("DOMContentLoaded", function () {
         var notaBloqueo = bloqueado
           ? '<div class="nota-aviso visible">🔒 Viaje y tripulación fijos mientras el bus está <strong>' + v.estado + '</strong>. Déjalo en el terminal para modificarlos.</div>'
           : "";
+        var notaSede = '<div class="nota-aviso visible">📍 Sede actual: <strong>' + v.sede + '</strong>.' +
+          (v.estado === "En terminal" ? ' Solo puede tomar rutas que salgan de esta sede.' : '') +
+          '</div>';
+        var traslado = "";
+        if (v.estado === "En terminal") {
+          traslado =
+            '<div class="traslado-control">' +
+              '<select class="traslado-sede" data-placa="' + v.placa + '" aria-label="Trasladar a sede">' +
+                SEDES.map(function (s) {
+                  return '<option value="' + s + '"' + (s === v.sede ? " selected" : "") + '>' + s + '</option>';
+                }).join("") +
+              '</select>' +
+              '<button type="button" class="btn btn-secundario btn-chico traslado-btn" data-placa="' + v.placa + '">🔄 Trasladar a sede</button>' +
+            '</div>';
+        }
         var acciones = "";
         if (v.estado === "En terminal") {
           acciones = '<button class="btn btn-primario btn-chico estado-boton" data-placa="' + v.placa + '" data-accion="salida">🚀 Marcar salida</button>' +
@@ -868,10 +956,13 @@ document.addEventListener("DOMContentLoaded", function () {
           '<div class="vehiculo-card" id="card-' + v.placa + '">' +
             '<div class="vehiculo-cabecera">' +
               '<div><div class="viaje-ruta">🚌 ' + v.placa + ' · ' + v.tipo + '</div></div>' +
-              estadoBadge(v.estado) +
+              '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+                estadoBadge(v.estado) +
+                '<span class="estado estado-sede">📍 ' + v.sede + '</span>' +
+              '</div>' +
             '</div>' +
             '<div class="fila-doble">' +
-              '<div class="form-grupo"><label>Viaje asignado</label><select class="asignar-viaje" data-placa="' + v.placa + '"' + dis + '>' + opcionesViajes(v.viajeId) + '</select></div>' +
+              '<div class="form-grupo"><label>Viaje asignado</label><select class="asignar-viaje" data-placa="' + v.placa + '"' + dis + '>' + opcionesViajes(v.viajeId, bloqueado ? null : v.sede) + '</select></div>' +
               '<div class="form-grupo"><label>Día del viaje</label><input type="date" class="asignar-fecha" data-placa="' + v.placa + '" value="' + (v.viajeFecha || "") + '"' + dis + '></div>' +
             '</div>' +
             '<div class="fila-doble">' +
@@ -879,6 +970,8 @@ document.addEventListener("DOMContentLoaded", function () {
               '<div class="form-grupo"><label>Azafata</label><select class="asignar-rol" data-placa="' + v.placa + '" data-rol="azafata"' + dis + '>' + opcionesPersonas("azafata", v.azafata) + '</select></div>' +
             '</div>' +
             notaBloqueo +
+            notaSede +
+            traslado +
             '<div class="acciones">' + acciones + '</div>' +
             '<div class="ocupacion">' + planoAsientos(v.viajeId, v.viajeFecha, v.placa) + '</div>' +
           '</div>'
@@ -904,7 +997,12 @@ document.addEventListener("DOMContentLoaded", function () {
           var vehiculos2 = obtenerVehiculos();
           var objetivo = vehiculos2.find(function (v) { return v.placa === placa; });
           if (!objetivo) return;
+          var viajeAccion = objetivo.viajeId ? todosLosViajes().find(function (x) { return x.id === objetivo.viajeId; }) : null;
           if (accion === "salida") {
+            if (viajeAccion && viajeAccion.origen !== objetivo.sede) {
+              alert("⚠️ El bus " + placa + " está en la sede " + objetivo.sede + " y la ruta " + viajeAccion.origen + " → " + viajeAccion.destino + " sale desde " + viajeAccion.origen + ". Haz un traslado primero.");
+              return;
+            }
             var pendientes = obtenerReservas().filter(function (r) {
               return r.viajeId === objetivo.viajeId && r.estado === "Pendiente de confirmación" && (!objetivo.viajeFecha || r.fecha === objetivo.viajeFecha);
             });
@@ -912,9 +1010,18 @@ document.addEventListener("DOMContentLoaded", function () {
               return;
             }
           }
-          if (accion === "salida") objetivo.estado = "En ruta";
-          else if (accion === "llegada") objetivo.estado = "Llegado";
-          else if (accion === "mantenimiento") objetivo.estado = "En mantenimiento";
+          if (accion === "salida") {
+            objetivo.estado = "En ruta";
+            if (viajeAccion) {
+              registrarActividad("recorrido", objetivo.placa, objetivo.conductor, viajeAccion.origen, viajeAccion.destino, "En ruta");
+            }
+          } else if (accion === "llegada") {
+            objetivo.estado = "Llegado";
+            if (viajeAccion) {
+              objetivo.sede = viajeAccion.destino;
+              completarRecorrido(objetivo.placa);
+            }
+          } else if (accion === "mantenimiento") objetivo.estado = "En mantenimiento";
           else if (accion === "terminal") objetivo.estado = "En terminal";
           guardarVehiculos(vehiculos2);
           renderizar.vehiculos();
@@ -925,11 +1032,17 @@ document.addEventListener("DOMContentLoaded", function () {
         select.addEventListener("change", function () {
           var placa = select.getAttribute("data-placa");
           var vehiculos3 = obtenerVehiculos();
-          vehiculos3.forEach(function (v) {
-            if (v.placa === placa) {
-              v.viajeId = select.value ? parseInt(select.value, 10) : null;
+          var objetivoA = vehiculos3.find(function (v) { return v.placa === placa; });
+          if (!objetivoA) return;
+          if (select.value) {
+            var viajeSel = todosLosViajes().find(function (x) { return x.id === parseInt(select.value, 10); });
+            if (viajeSel && viajeSel.origen !== objetivoA.sede) {
+              alert("⚠️ El bus " + placa + " está en la sede " + objetivoA.sede + ". Solo puede tomar rutas que salgan de esa sede. Usa 'Trasladar a sede' para moverlo.");
+              renderizar.vehiculos();
+              return;
             }
-          });
+          }
+          objetivoA.viajeId = select.value ? parseInt(select.value, 10) : null;
           guardarVehiculos(vehiculos3);
           renderizar.vehiculos();
         });
@@ -961,6 +1074,29 @@ document.addEventListener("DOMContentLoaded", function () {
             }
           });
           guardarVehiculos(vehiculos4);
+        });
+      });
+
+      caja.querySelectorAll(".traslado-btn").forEach(function (boton) {
+        boton.addEventListener("click", function () {
+          var placaT = boton.getAttribute("data-placa");
+          var selectSede = document.querySelector('.traslado-sede[data-placa="' + placaT + '"]');
+          var destino = selectSede ? selectSede.value : "";
+          var vehiculosT = obtenerVehiculos();
+          var objetivoT = vehiculosT.find(function (v) { return v.placa === placaT; });
+          if (!objetivoT || !destino || destino === objetivoT.sede) return;
+          var origenT = objetivoT.sede;
+          objetivoT.sede = destino;
+          if (objetivoT.viajeId) {
+            var viajeActual = todosLosViajes().find(function (x) { return x.id === objetivoT.viajeId; });
+            if (viajeActual && viajeActual.origen !== destino) {
+              objetivoT.viajeId = null;
+              objetivoT.viajeFecha = null;
+            }
+          }
+          guardarVehiculos(vehiculosT);
+          registrarActividad("traslado", objetivoT.placa, objetivoT.conductor, origenT, destino, "");
+          renderizar.vehiculos();
         });
       });
 
@@ -1028,6 +1164,52 @@ document.addEventListener("DOMContentLoaded", function () {
 
     azafatas: function () {
       renderEquipoRol("azafata", "👩‍✈️ Azafatas", "azafatas");
+    },
+
+    bitacora: function () {
+      var caja = document.querySelector('.panel-seccion[data-seccion="bitacora"]');
+      var actividad = obtenerActividad();
+
+      if (actividad.length === 0) {
+        caja.innerHTML = '<h2 class="seccion-titulo">Recorridos y traslados</h2>' +
+          '<p class="vacio">Aún no hay actividad registrada. Cuando un bus salga o sea trasladado, aparecerá aquí.</p>';
+        return;
+      }
+
+      var porFecha = {};
+      actividad.forEach(function (a) {
+        (porFecha[a.fecha] = porFecha[a.fecha] || []).push(a);
+      });
+      var fechas = Object.keys(porFecha).sort().reverse();
+
+      var html = '<h2 class="seccion-titulo">Bitácora por día (' + actividad.length + ')</h2>' +
+        '<div class="nota-aviso visible">📅 Recorridos (salidas) y traslados de buses entre sedes, agrupados por día.</div>';
+
+      fechas.forEach(function (fecha) {
+        var lista = porFecha[fecha];
+        html += '<h3 class="grupo-dia">📅 ' + fecha + ' · ' + lista.length + ' registro(s)</h3>';
+        html += lista.map(function (a) {
+          var icono = a.tipo === "traslado" ? "🔄" : "🚌";
+          var etiqueta = a.tipo === "traslado" ? "Traslado" : "Recorrido";
+          var detalle;
+          if (a.tipo === "traslado") {
+            detalle = 'Sede: <strong>' + a.origen + ' → ' + a.destino + '</strong>';
+          } else {
+            detalle = 'Ruta: <strong>' + a.origen + ' → ' + a.destino + '</strong>' +
+              (a.estado ? ' · <span class="estado ' + (a.estado === "Completado" ? "estado-llegado" : "estado-personal") + '">' + a.estado + '</span>' : '');
+          }
+          return (
+            '<div class="reserva-item">' +
+              '<div>' + icono + ' <strong>' + etiqueta + '</strong> · Bus <strong>' + a.placa + '</strong>' +
+                (a.conductor ? ' · 🧑‍✈️ ' + a.conductor : '') + '</div>' +
+              '<div class="viaje-info">' + detalle + '</div>' +
+              '<div class="viaje-info">🕒 ' + a.hora + (a.horaLlegada ? ' · 🏁 Llegada ' + a.horaLlegada : '') + '</div>' +
+            '</div>'
+          );
+        }).join("");
+      });
+
+      caja.innerHTML = html;
     }
   };
 

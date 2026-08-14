@@ -4,7 +4,7 @@ Este documento describe las reglas de negocio implementadas en la aplicación.
 
 ## 1. Reserva de asientos
 
-El cliente inicia la reserva desde **Rutas y Horarios** (`rutas.html`) pulsando *Reservar* en un viaje. La página redirige a `reservas.html?viaje=<id>`.
+El cliente inicia la reserva desde **Rutas y Horarios** (`pages/cliente/rutas.html`) pulsando *Reservar* en un viaje. La página redirige a `pages/cliente/reservas.html?viaje=<id>`.
 
 Validaciones del formulario:
 
@@ -28,7 +28,7 @@ Un asiento está ocupado cuando existe una reserva del mismo `viajeId` y la mism
 
 ## 2. Confirmación de pagos en efectivo
 
-El personal confirma los pagos en efectivo desde el panel (`personal.html`) en dos lugares:
+El personal confirma los pagos en efectivo desde el panel (`pages/personal/personal.html`) en dos lugares:
 
 - **Sección Clientes**: botón *Confirmar pago (efectivo)* por cada reserva pendiente.
 - **Sección Vehículos**: botón *Confirmar pago* dentro de la ficha del pasajero (tocando un asiento ocupado) o en la lista *Pasajeros a bordo*.
@@ -55,28 +55,41 @@ En terminal ──Marcar salida──▶ En ruta ──Marcar llegada──▶ L
 ```
 
 - **Asignación de viaje/fecha/conductores/azafata**: solo se puede modificar cuando el bus está *En terminal*. Mientras está *En ruta* o *Llegado* los selects quedan deshabilitados (viaje y tripulación "fijos").
+- **Regla de sedes**: cada bus tiene una sede y solo puede tomar rutas que **salgan de su sede**. El selector de viaje muestra únicamente esas rutas; si se intenta asignar o marcar salida con una ruta que no sale de la sede, el sistema lo bloquea con un aviso.
+- **Llegada a destino**: al marcar *Marcar llegada*, el bus pasa a *Llegado* y su sede se actualiza al **destino** de la ruta, quedando disponible para tomar rutas desde esa ciudad.
+- **Traslados**: un bus *En terminal* puede trasladarse a otra sede con *🔄 Trasladar a sede*. Si tenía un viaje asignado que no sale de la nueva sede, se le desasigna. Cada traslado se anota en la bitácora.
 - **En mantenimiento**: solo se puede devolver el bus al terminal (botón *Reparado → Terminal*).
 - Los **pasajeros a bordo** se listan a partir de las reservas del `viajeId` (y `viajeFecha` del vehículo), agrupados por piso. Los vehículos sin viaje asignado muestran un aviso en lugar del plano.
 
-## 4. Viajes creados por el personal
+## 4. Bitácora de recorridos y traslados
+
+La sección **🧭 Recorridos y traslados** del panel muestra la actividad de la flota agrupada **por día** (más reciente primero), con hora y estado:
+
+- **Recorrido**: se registra al *marcar salida* con la ruta del viaje asignado y estado `En ruta`. Al *marcar llegada* pasa a `Completado` con la hora de llegada.
+- **Traslado**: se registra al mover un bus de una sede a otra (`origen → destino`).
+
+Se guarda en `busEmpresa_actividad`. Al sembrar datos de demostración se registran los recorridos de los buses *En ruta* y tres traslados de ejemplo.
+
+## 5. Viajes creados por el personal
 
 - Se guardan en `busEmpresa_viajes_personal` con `personal: true`.
 - `todosLosViajes()` devuelve la unión del catálogo fijo (`VIAJES`) y los viajes del personal, por lo que aparecen automáticamente en Rutas y Horarios y pueden reservarse como cualquier otro.
 - En el panel, los viajes propios muestran la etiqueta *"Creado por personal"* y pueden eliminarse.
 
-## 5. Sembrado de datos de demostración
+## 6. Sembrado de datos de demostración
 
 Al abrir el panel del personal (`sembrarDatosDemo()`):
 
 - Si no existen los 8 clientes de ejemplo, se agregan con contraseña `cliente123`.
 - Si no existen las reservas de ejemplo (ids `900000001`–`900000008`), se crean para los viajes 1 y 4, con pagos mixtos (efectivo pendiente, tarjeta, Yape y transferencia confirmados).
+- Si la bitácora está vacía, se registran los recorridos *En ruta* de la flota y tres traslados de ejemplo.
 
-Esto permite demostrar el panel completo (clientes, pagos pendientes y pasajeros a bordo) sin configuración manual.
+Esto permite demostrar el panel completo (clientes, pagos pendientes, pasajeros a bordo y bitácora) sin configuración manual.
 
-## 6. Sesión y permisos
+## 7. Sesión y permisos
 
 - La sesión se guarda en `busEmpresa_sesion`.
-- `personal.html` redirige a login si no hay sesión o si `sesion.rol !== "personal"`.
-- `cuenta.html` y `reservas.html` exigen sesión de cliente.
+- `pages/personal/personal.html` redirige a login si no hay sesión o si `sesion.rol !== "personal"`.
+- `pages/cliente/cuenta.html` y `pages/cliente/reservas.html` exigen sesión de cliente.
 - El enlace *Reservar* del navbar redirige a login si no hay sesión.
 - El rol `personal` se asigna solo a los usuarios de `PERSONAL_USUARIOS` (correos `@personal.pe`); el registro de clientes bloquea ese dominio.

@@ -24,26 +24,30 @@ Los siguientes clientes se crean automáticamente la primera vez que el personal
 | Adrián Vega | adrian.vega@gmail.com | `cliente123` |
 | Kiara Llanos | kiara.llanos@gmail.com | `cliente123` |
 
-### Personal (definido en `js/auth.js`)
+### Personal (definido en `js/core/auth.js`)
 
-| Nombre | Correo | Contraseña |
-|---|---|---|
-| Carlos Ramírez | carlos@personal.pe | `andes123` |
-| María Torres | maria@personal.pe | `andes123` |
+Todas las cuentas del personal usan la contraseña `andes123`:
+
+| Nombre | Correo | Nombre | Correo |
+|---|---|---|---|
+| Carlos Ramírez | carlos@personal.pe | Andrés Huamán | andres@personal.pe |
+| María Torres | maria@personal.pe | Marco Rivera | marco@personal.pe |
+| Jorge Gutiérrez | jorge@personal.pe | Rosa Salazar | rosa@personal.pe |
+| Lucía Mendoza | lucia@personal.pe | | |
 
 > Los correos `@personal.pe` son exclusivos del personal: no se puede registrar una cuenta de cliente con ellos.
 
 ## 3. Flujo del cliente
 
-1. **Registro** (`pages/registro.html`): crea una cuenta con nombre completo, correo válido, teléfono de 7–9 dígitos y contraseña de al menos 6 caracteres.
-2. **Inicio de sesión** (`pages/login.html`): entra con tu correo y contraseña.
-3. **Rutas** (`pages/rutas.html`): busca por origen y destino; cada viaje muestra hora de salida, duración y precio.
-4. **Reserva** (`pages/reservas.html?viaje=<id>`):
+1. **Registro** (`pages/cliente/registro.html`): crea una cuenta con nombre completo, correo válido, teléfono de 7–9 dígitos y contraseña de al menos 6 caracteres.
+2. **Inicio de sesión** (`pages/cliente/login.html`): entra con tu correo y contraseña.
+3. **Rutas** (`pages/cliente/rutas.html`): busca por origen y destino; cada viaje muestra hora de salida, duración y precio.
+4. **Reserva** (`pages/cliente/reservas.html?viaje=<id>`):
    - Elige la fecha del viaje (debe ser al menos un día posterior a hoy).
    - Selecciona los asientos en el plano del bus. Piso 1 (premium, asientos 1–20) cuesta más que el Piso 2 (asientos 21–64). Los asientos ocupados aparecen deshabilitados.
    - Elige el método de pago: tarjeta (con validación de datos), Yape/Plin, transferencia o efectivo en terminal.
    - Si son 6 o más asientos, se aplica automáticamente el **plan familiar (−10 %)**.
-5. **Cuenta** (`pages/cuenta.html`): consulta tus datos y el historial de reservas con su estado y monto.
+5. **Cuenta** (`pages/cliente/cuenta.html`): consulta tus datos y el historial de reservas con su estado y monto.
 
 ### Reglas importantes para el cliente
 
@@ -51,7 +55,7 @@ Los siguientes clientes se crean automáticamente la primera vez que el personal
 - 💵 **Pago en efectivo**: el pago queda como *Pendiente de confirmación* y debe confirmarse en el terminal en un plazo de **6 horas**; pasado ese plazo, los asientos pueden quedar disponibles para otro pasajero.
 - 👨‍👩‍👧‍👦 El descuento familiar es del **10 %** al superar los 5 pasajeros.
 
-## 4. Panel del personal (`pages/personal.html`)
+## 4. Panel del personal (`pages/personal/personal.html`)
 
 Ingresa con una cuenta `@personal.pe` (por ejemplo, `carlos@personal.pe` / `andes123`).
 
@@ -72,15 +76,21 @@ Formulario para crear un viaje (origen, destino, fecha, hora, duración y precio
 ### 🚍 Vehículos
 Control de la flota:
 
+- Cada tarjeta muestra la **sede actual** del bus (📍). El bus solo puede tomar rutas que **salgan de su sede**: el selector de viaje muestra únicamente esas rutas.
 - **Asignar viaje, fecha, conductor y azafata** a cada bus (solo cuando está *En terminal*; el viaje y la tripulación quedan **bloqueados** mientras el bus está *En ruta* o *Llegado*).
 - **Cambiar estado**: *En terminal* → *Marcar salida* (🚀) → *En ruta* → *Marcar llegada* (🏁) → *Llegado* → *Volver al terminal* (🔁). También se puede mandar a **mantenimiento**.
+- Al **marcar llegada**, el bus queda en la ciudad de destino (su sede se actualiza) y ya solo podrá tomar rutas que salgan de ahí.
+- **Traslados**: un bus *En terminal* puede moverse a otra sede con *🔄 Trasladar a sede*. Si tenía un viaje asignado que no sale de la nueva sede, se le desasigna.
 - Al **marcar salida**, si hay pagos en efectivo pendientes para ese viaje, el sistema avisa y pide confirmación antes de permitir la salida.
 - Cada tarjeta de vehículo muestra el **mapa de asientos** con los pasajeros a bordo del día. Tocar un asiento ocupado (naranja) abre la **ficha del cliente** con su correo, teléfono y estado de pago.
 - Los pagos en efectivo se confirman desde la ficha del asiento o desde la lista de pasajeros, **solo mientras el bus está en terminal** (antes de la salida).
 - Permite **registrar vehículos** nuevos (placa y tipo).
 
-### 🧑‍✈️ Equipo
-Lista de conductores y azafatas (edición exclusiva de la administración).
+### 🧑‍✈️ Conductores y 👩‍✈️ Azafatas
+Lista del equipo operativo (20 miembros) con su ficha (teléfono, DNI y años de experiencia). La edición es exclusiva de la administración.
+
+### 🧭 Recorridos y traslados
+Bitácora de la actividad de la flota **agrupada por día**: cada salida (*recorrido* con su ruta y estado) y cada *traslado* entre sedes (origen → destino), con hora de registro y hora de llegada cuando corresponde.
 
 ## 5. Panel de accesibilidad (todas las páginas)
 
@@ -101,4 +111,4 @@ También hay un botón flotante de **WhatsApp** 💬 que abre un chat predefinid
 
 ## 6. ¿Cómo se reinician los datos de demostración?
 
-El panel del personal siembra clientes y reservas de ejemplo solo si no existen. Para empezar desde cero, borra el `localStorage` del sitio en el navegador (o limpia las claves `busEmpresa_*`).
+El panel del personal siembra clientes, reservas y bitácora de ejemplo solo si no existen. Para empezar desde cero, borra el `localStorage` del sitio en el navegador (o limpia las claves `busEmpresa_*`).

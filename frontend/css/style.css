@@ -1487,6 +1487,27 @@ body.mascara-activa .mascara-lectura {
   color: #c2410c;
 }
 
+.estado-sede {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.traslado-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.traslado-control select {
+  flex: 1;
+}
+
+.modo-noche .estado-sede {
+  background: #3b0764;
+  color: #e9d5ff;
+}
+
 .btn-chico {
   padding: 6px 12px;
   font-size: 0.8rem;
