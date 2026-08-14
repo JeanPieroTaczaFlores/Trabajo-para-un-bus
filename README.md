@@ -12,6 +12,8 @@ Proyecto desarrollado en **HTML, CSS y JavaScript puro** (sin frameworks ni back
 - 👨‍👩‍👧‍👦 **Plan familiar**: 10 % de descuento al superar 5 pasajeros en una misma reserva.
 - 👥 **Registro e inicio de sesión** de clientes.
 - 🧑‍✈️ **Panel del personal**: control de vehículos (salida, llegada, mantenimiento), asignación de viajes, conductores y azafatas, creación de viajes nuevos, confirmación de pagos en efectivo y mapa de asientos con la ficha de cada pasajero.
+- 🏙️ **Sedes**: cada bus pertenece a una sede (Lima, Arequipa, Cusco, Trujillo o Puno) y solo toma rutas que salgan de ella; al llegar queda en la ciudad de destino y puede trasladarse a otra sede.
+- 🧭 **Bitácora**: historial por día de recorridos (salidas) y traslados de buses entre sedes.
 - ♿ **Accesibilidad**: tamaño de letra, modo noche, máscara de lectura, alto contraste, espaciado, modo lectura, subrayado de enlaces, pausar animaciones, lectura en voz alta e idioma ES/EN.
 - 💬 Botón flotante de WhatsApp.
 
@@ -32,30 +34,18 @@ No requiere instalación ni servidor. Abre `frontend/index.html` directamente en
 ```
 bus-empresa/
 ├── frontend/
-│   ├── index.html          # Página de inicio
-│   ├── css/style.css       # Estilos globales
-│   ├── assets/logo.svg     # Logo de la marca
-│   ├── pages/              # Páginas del sitio
-│   │   ├── nosotros.html   # Información de la empresa
-│   │   ├── rutas.html      # Rutas y horarios
-│   │   ├── reservas.html   # Reserva de asientos
-│   │   ├── login.html      # Inicio de sesión
-│   │   ├── registro.html   # Registro de clientes
-│   │   ├── cuenta.html     # Cuenta y reservas del cliente
-│   │   ├── contacto.html   # Formulario de contacto
-│   │   └── personal.html   # Panel del personal
+│   ├── index.html              # Página de inicio
+│   ├── css/style.css           # Estilos globales
+│   ├── assets/logo.svg         # Logo de la marca
+│   ├── pages/
+│   │   ├── publica/            # Páginas públicas (nosotros, contacto)
+│   │   ├── cliente/            # Páginas del cliente (rutas, reservas, login, registro, cuenta)
+│   │   └── personal/           # Panel del personal (personal.html)
 │   └── js/
-│       ├── datos.js        # Catálogo de viajes y utilidades de precio
-│       ├── auth.js         # Autenticación y credenciales del personal
-│       ├── i18n.js         # Traducciones ES/EN
-│       ├── main.js         # Navbar, accesibilidad, botón WhatsApp
-│       ├── rutas.js        # Búsqueda de viajes
-│       ├── reservas.js     # Reserva de asientos y pagos
-│       ├── cuenta.js       # Vista de cuenta del cliente
-│       ├── login.js        # Lógica de inicio de sesión
-│       ├── registro.js     # Validación de registro
-│       ├── contacto.js     # Validación del formulario de contacto
-│       └── personal.js     # Panel del personal (flota, pagos, viajes)
+│       ├── core/               # Núcleo compartido (datos, auth, i18n, main)
+│       ├── publica/            # contacto.js
+│       ├── cliente/            # rutas, reservas, login, registro, cuenta
+│       └── personal/           # personal.js (panel: flota, viajes, sedes, bitácora)
 ├── backend/                # Reservado (sin uso actual; app 100 % frontend)
 └── docs/                   # Documentación del proyecto
 ```

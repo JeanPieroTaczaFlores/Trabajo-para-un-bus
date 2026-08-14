@@ -35,7 +35,7 @@ function aplicarSesionUI() {
     const nombreCorto = partes[0];
     enlaceLogin.innerHTML =
       t("cuenta.hola") + ", " + nombreCorto.charAt(0).toUpperCase() + nombreCorto.slice(1);
-    enlaceLogin.href = sesion.rol === "personal" ? rutaPersonal() : "cuenta.html";
+    enlaceLogin.href = sesion.rol === "personal" ? rutaPersonal() : rutaCuenta();
     enlaceLogin.removeAttribute("data-i18n");
   }
 

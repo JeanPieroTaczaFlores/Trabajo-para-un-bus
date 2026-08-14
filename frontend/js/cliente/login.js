@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   const sesionActiva = obtenerSesion();
   if (sesionActiva) {
-    window.location.href = sesionActiva.rol === "personal" ? "personal.html" : "cuenta.html";
+    window.location.href = sesionActiva.rol === "personal" ? "../personal/personal.html" : "cuenta.html";
     return;
   }
 
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (personal) {
       guardarSesion(personal);
-      window.location.href = "personal.html";
+      window.location.href = "../personal/personal.html";
       return;
     }
 
