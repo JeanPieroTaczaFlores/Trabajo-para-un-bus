@@ -504,8 +504,8 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  function renderEquipoRol(rol, titulo) {
-    var caja = document.querySelector('.panel-seccion[data-seccion="' + rol + '"]');
+  function renderEquipoRol(rol, titulo, seccion) {
+    var caja = document.querySelector('.panel-seccion[data-seccion="' + seccion + '"]');
     var lista = obtenerEquipo().filter(function (m) { return m.rol === rol; });
     if (lista.length === 0) {
       caja.innerHTML = '<h2 class="seccion-titulo">' + titulo + '</h2><p class="vacio">No hay miembros registrados en este grupo.</p>';
@@ -1023,11 +1023,11 @@ document.addEventListener("DOMContentLoaded", function () {
     },
 
     conductores: function () {
-      renderEquipoRol("conductor", "🧑‍✈️ Conductores");
+      renderEquipoRol("conductor", "🧑‍✈️ Conductores", "conductores");
     },
 
     azafatas: function () {
-      renderEquipoRol("azafata", "👩‍✈️ Azafatas");
+      renderEquipoRol("azafata", "👩‍✈️ Azafatas", "azafatas");
     }
   };
 
