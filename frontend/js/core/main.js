@@ -20,22 +20,25 @@ if (enlaceReserva) {
 
 crearElementosFlotantes();
 aplicarIdioma();
-aplicarSesionUI();
 
-function aplicarSesionUI() {
+verificarSesion().then(function (usuario) {
+  aplicarSesionUI(usuario);
+});
+
+function aplicarSesionUI(usuario) {
   const enlaceLogin = document.getElementById("enlace-login");
   const enlaceSalir = document.getElementById("enlace-salir");
   const enlaceRegistro = document.getElementById("enlace-registro");
-  const sesion = obtenerSesion();
-
-  if (!sesion) return;
+  if (!usuario) return;
 
   if (enlaceLogin) {
-    const partes = sesion.nombre.split(" ");
+    const partes = usuario.nombre.split(" ");
     const nombreCorto = partes[0];
     enlaceLogin.innerHTML =
       t("cuenta.hola") + ", " + nombreCorto.charAt(0).toUpperCase() + nombreCorto.slice(1);
-    enlaceLogin.href = sesion.rol === "personal" ? rutaPersonal() : rutaCuenta();
+    if (usuario.rol === "admin") enlaceLogin.href = rutaAdmin();
+    else if (usuario.rol === "personal") enlaceLogin.href = rutaPersonal();
+    else enlaceLogin.href = rutaCuenta();
     enlaceLogin.removeAttribute("data-i18n");
   }
 

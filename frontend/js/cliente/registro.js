@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   const formulario = document.getElementById("form-registro");
   const alerta = document.getElementById("alerta");
+  const botonEnviar = formulario.querySelector('button[type="submit"]');
 
   const nombreInput = document.getElementById("nombre");
   const correoInput = document.getElementById("correo");
@@ -29,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  formulario.addEventListener("submit", function (e) {
+  formulario.addEventListener("submit", async function (e) {
     e.preventDefault();
     limpiarErrores();
 
@@ -70,31 +71,30 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    const usuarios = obtenerUsuarios();
-    if (usuarios.some(function (u) { return u.correo === correo; })) {
-      alerta.textContent = t("reg.existe");
+    botonEnviar.disabled = true;
+    botonEnviar.textContent = t("reg.enviando") || "Creando cuenta…";
+
+    try {
+      const datos = await apiPost('/api/auth/register', {
+        nombre,
+        correo,
+        telefono,
+        contrasena
+      });
+      guardarSesion(datos.usuario);
+      alerta.classList.remove("alert-error");
+      alerta.classList.add("alert-exito");
+      alerta.textContent = t("reg.exito");
       alerta.classList.add("visible");
-      return;
+      setTimeout(function () {
+        window.location.href = rutaCuenta();
+      }, 1500);
+    } catch (error) {
+      if (manejarError401(error)) return;
+      alerta.textContent = error.message;
+      alerta.classList.add("visible");
+      botonEnviar.disabled = false;
+      botonEnviar.textContent = t("reg.crear") || "Crear cuenta";
     }
-
-    const nuevoUsuario = {
-      nombre: nombre,
-      correo: correo,
-      telefono: telefono,
-      contrasena: contrasena
-    };
-
-    usuarios.push(nuevoUsuario);
-    guardarUsuarios(usuarios);
-    guardarSesion(nuevoUsuario);
-
-    alerta.classList.remove("alert-error");
-    alerta.classList.add("alert-exito");
-    alerta.textContent = t("reg.exito");
-    alerta.classList.add("visible");
-
-    setTimeout(function () {
-      window.location.href = "cuenta.html";
-    }, 1500);
   });
 });

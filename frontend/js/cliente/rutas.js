@@ -4,25 +4,31 @@ document.addEventListener("DOMContentLoaded", function () {
   const destinoInput = document.getElementById("destino");
   const listaCiudades = document.getElementById("lista-ciudades");
   const resultados = document.getElementById("resultados");
+  const mensajeCarga = document.getElementById("mensaje-carga");
 
-  const ciudades = todosLosViajes().reduce(function (acc, viaje) {
-    [viaje.origen, viaje.destino].forEach(function (ciudad) {
-      if (acc.indexOf(ciudad) === -1) acc.push(ciudad);
-    });
-    return acc;
-  }, []).sort();
-
-  ciudades.forEach(function (ciudad) {
-    const opcion = document.createElement("option");
-    opcion.value = ciudad;
-    listaCiudades.appendChild(opcion);
-  });
+  let viajes = [];
 
   function normalizar(texto) {
     return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
   }
 
+  function llenarCiudades() {
+    const ciudades = viajes.reduce(function (acc, viaje) {
+      [viaje.origen, viaje.destino].forEach(function (ciudad) {
+        if (acc.indexOf(ciudad) === -1) acc.push(ciudad);
+      });
+      return acc;
+    }, []).sort();
+
+    ciudades.forEach(function (ciudad) {
+      const opcion = document.createElement("option");
+      opcion.value = ciudad;
+      listaCiudades.appendChild(opcion);
+    });
+  }
+
   function mostrarViajes(lista) {
+    if (mensajeCarga) mensajeCarga.style.display = "none";
     if (lista.length === 0) {
       resultados.innerHTML = '<p class="vacio">' + t("rutas.vacio") + '</p>';
       return;
@@ -36,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
             '<div class="viaje-info">' + t("rutas.salida") + ': ' + viaje.hora + ' · ' + t("rutas.duracion") + ': ' + viaje.duracion + '</div>' +
           '</div>' +
           '<div style="text-align:right;">' +
-            '<div class="viaje-precio">S/ ' + viaje.precio.toFixed(2) + '</div>' +
+            '<div class="viaje-precio">S/ ' + Number(viaje.precio).toFixed(2) + '</div>' +
             '<a href="reservas.html?viaje=' + viaje.id + '" class="btn btn-primario mt-16">' + t("rutas.reservar") + '</a>' +
           '</div>' +
         '</article>'
@@ -50,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const origen = normalizar(origenInput.value);
     const destino = normalizar(destinoInput.value);
 
-    const lista = todosLosViajes().filter(function (viaje) {
+    const lista = viajes.filter(function (viaje) {
       const cumpleOrigen = !origen || normalizar(viaje.origen) === origen;
       const cumpleDestino = !destino || normalizar(viaje.destino) === destino;
       return cumpleOrigen && cumpleDestino;
@@ -64,5 +70,15 @@ document.addEventListener("DOMContentLoaded", function () {
     filtrar();
   });
 
-  mostrarViajes(todosLosViajes());
+  (async function cargar() {
+    try {
+      const datos = await apiGet('/api/viajes');
+      viajes = datos.viajes;
+      llenarCiudades();
+      mostrarViajes(viajes);
+    } catch (error) {
+      if (mensajeCarga) mensajeCarga.style.display = "none";
+      resultados.innerHTML = '<p class="vacio">' + (error.message || t("rutas.vacio")) + '</p>';
+    }
+  })();
 });

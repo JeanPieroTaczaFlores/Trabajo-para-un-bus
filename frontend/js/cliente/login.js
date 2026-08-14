@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   const sesionActiva = obtenerSesion();
   if (sesionActiva) {
-    window.location.href = sesionActiva.rol === "personal" ? "../personal/personal.html" : "cuenta.html";
+    redirigirPorRol(sesionActiva);
     return;
   }
 
@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const alerta = document.getElementById("alerta");
   const correoInput = document.getElementById("correo");
   const contrasenaInput = document.getElementById("contrasena");
+  const botonEnviar = formulario.querySelector('button[type="submit"]');
   const errorCorreo = document.getElementById("error-correo");
   const errorContrasena = document.getElementById("error-contrasena");
 
@@ -20,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
     contrasenaInput.style.borderColor = "";
   }
 
-  formulario.addEventListener("submit", function (e) {
+  formulario.addEventListener("submit", async function (e) {
     e.preventDefault();
     limpiarErrores();
 
@@ -38,28 +39,21 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    const usuarios = obtenerUsuarios();
-    const usuario = usuarios.find(function (u) {
-      return u.correo === correo && u.contrasena === contrasena;
-    });
+    botonEnviar.disabled = true;
+    botonEnviar.textContent = t("login.enviando") || "Ingresando…";
 
-    if (usuario) {
-      guardarSesion(Object.assign({}, usuario, { rol: "cliente" }));
-      window.location.href = "cuenta.html";
-      return;
+    try {
+      const datos = await apiPost('/api/auth/login', { correo, contrasena });
+      guardarSesion(datos.usuario);
+      mostrarExito(datos.mensaje);
+      setTimeout(function () {
+        window.location.href = redirigirPorRol(datos.usuario);
+      }, 400);
+    } catch (error) {
+      alerta.textContent = error.message;
+      alerta.classList.add("visible");
+      botonEnviar.disabled = false;
+      botonEnviar.textContent = t("nav.login") || "Iniciar sesión";
     }
-
-    const personal = PERSONAL_USUARIOS.find(function (u) {
-      return u.correo === correo && u.contrasena === contrasena;
-    });
-
-    if (personal) {
-      guardarSesion(personal);
-      window.location.href = "../personal/personal.html";
-      return;
-    }
-
-    alerta.textContent = t("login.errCredenciales");
-    alerta.classList.add("visible");
   });
 });

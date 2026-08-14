@@ -1513,6 +1513,109 @@ body.mascara-activa .mascara-lectura {
   font-size: 0.8rem;
 }
 
+.admin-cuadro {
+  background: var(--blanco);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.tabla-envoltorio {
+  overflow-x: auto;
+}
+
+.admin-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.admin-tabla th,
+.admin-tabla td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+
+.admin-tabla th {
+  background: #f1f5f9;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #475569;
+}
+
+.admin-tabla tr:hover td {
+  background: #f8fafc;
+}
+
+.barras {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 160px;
+  padding: 8px 4px 0;
+}
+
+.barra-dia {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  height: 100%;
+  min-width: 0;
+}
+
+.barra-llena {
+  width: 100%;
+  max-width: 46px;
+  background: var(--azul);
+  border-radius: 6px 6px 0 0;
+  min-height: 8px;
+}
+
+.barra-dia span {
+  font-size: 0.68rem;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.barra-dia strong {
+  font-size: 0.8rem;
+  color: #0f172a;
+}
+
+.modo-noche .admin-cuadro {
+  background: var(--panel-noche, #1e293b);
+  border-color: #334155;
+}
+
+.modo-noche .admin-tabla th {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+.modo-noche .admin-tabla th,
+.modo-noche .admin-tabla td {
+  border-bottom-color: #334155;
+}
+
+.modo-noche .admin-tabla tr:hover td {
+  background: #1e293b;
+}
+
+.modo-noche .barra-dia span {
+  color: #94a3b8;
+}
+
+.modo-noche .barra-dia strong {
+  color: #f1f5f9;
+}
+
 .cliente-item {
   background: var(--blanco);
   border: 1px solid #e2e8f0;

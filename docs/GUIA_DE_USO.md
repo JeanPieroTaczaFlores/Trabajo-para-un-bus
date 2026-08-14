@@ -1,114 +1,74 @@
 # Guía de uso
 
-## 1. Acceso general
+## 1. Puesta en marcha
 
-Abre `frontend/index.html` en el navegador. No se necesita instalar nada ni levantar un servidor.
+Requisitos: **Node.js 18+** y **MySQL/MariaDB** (el MySQL de XAMPP, administrable con MySQL Workbench).
 
-- **Cliente** → puede consultar rutas, reservar y ver su cuenta.
-- **Personal** → gestiona la flota, los viajes y los pagos en efectivo.
+```bash
+cd backend
+npm install
+npm run db:reset     # crea la base andesbus (schema + seed)
+node server.js       # levanta API + frontend en http://localhost:3001
+```
 
-## 2. Credenciales de acceso
+Si tu MySQL no es `root` sin contraseña en el puerto 3306, copia `backend/.env.example` a `backend/.env` y ajusta las variables.
 
-### Clientes de demostración
+## 2. Credenciales de acceso (demo)
 
-Los siguientes clientes se crean automáticamente la primera vez que el personal abre su panel (`sembrarDatosDemo()`):
-
-| Nombre | Correo | Contraseña |
-|---|---|---|
-| Luis Mendoza | luis.mendoza@gmail.com | `cliente123` |
-| Diana Quispe | diana.quispe@hotmail.com | `cliente123` |
-| Pedro Salas | pedro.salas@gmail.com | `cliente123` |
-| Lucía Castro | lucia.castro@gmail.com | `cliente123` |
-| Jorge Huamán | jorge.huaman@outlook.com | `cliente123` |
-| Renata Paredes | renata.paredes@gmail.com | `cliente123` |
-| Adrián Vega | adrian.vega@gmail.com | `cliente123` |
-| Kiara Llanos | kiara.llanos@gmail.com | `cliente123` |
-
-### Personal (definido en `js/core/auth.js`)
-
-Todas las cuentas del personal usan la contraseña `andes123`:
-
-| Nombre | Correo | Nombre | Correo |
+| Rol | Nombre | Correo | Contraseña |
 |---|---|---|---|
-| Carlos Ramírez | carlos@personal.pe | Andrés Huamán | andres@personal.pe |
-| María Torres | maria@personal.pe | Marco Rivera | marco@personal.pe |
-| Jorge Gutiérrez | jorge@personal.pe | Rosa Salazar | rosa@personal.pe |
-| Lucía Mendoza | lucia@personal.pe | | |
+| Administrador | Admin Andesbus | admin@demo.com | `admin123` |
+| Personal | Carlos Ramírez | carlos@personal.pe | `andes123` |
+| Personal | María Torres | maria@personal.pe | `andes123` |
+| Cliente | Luis Mendoza | luis.mendoza@gmail.com | `cliente123` |
 
-> Los correos `@personal.pe` son exclusivos del personal: no se puede registrar una cuenta de cliente con ellos.
+> Los correos `@personal.pe` son exclusivos del personal: el registro público de clientes los rechaza.
 
 ## 3. Flujo del cliente
 
-1. **Registro** (`pages/cliente/registro.html`): crea una cuenta con nombre completo, correo válido, teléfono de 7–9 dígitos y contraseña de al menos 6 caracteres.
-2. **Inicio de sesión** (`pages/cliente/login.html`): entra con tu correo y contraseña.
-3. **Rutas** (`pages/cliente/rutas.html`): busca por origen y destino; cada viaje muestra hora de salida, duración y precio.
-4. **Reserva** (`pages/cliente/reservas.html?viaje=<id>`):
-   - Elige la fecha del viaje (debe ser al menos un día posterior a hoy).
-   - Selecciona los asientos en el plano del bus. Piso 1 (premium, asientos 1–20) cuesta más que el Piso 2 (asientos 21–64). Los asientos ocupados aparecen deshabilitados.
-   - Elige el método de pago: tarjeta (con validación de datos), Yape/Plin, transferencia o efectivo en terminal.
-   - Si son 6 o más asientos, se aplica automáticamente el **plan familiar (−10 %)**.
-5. **Cuenta** (`pages/cliente/cuenta.html`): consulta tus datos y el historial de reservas con su estado y monto.
+1. **Registro** (`/pages/cliente/registro.html`): nombre completo, correo válido, teléfono (7–9 dígitos) y contraseña (mínimo 6 caracteres).
+2. **Inicio de sesión** (`/pages/cliente/login.html`): según el rol, la sesión redirige a la cuenta, al panel personal o al panel de administración.
+3. **Rutas y Horarios** (`/pages/cliente/rutas.html`): busca por origen y destino; cada viaje muestra hora de salida, duración y precio.
+4. **Reserva** (`/pages/cliente/reservas.html?viaje=<id>`):
+   - Fecha del viaje (mínimo un día posterior a hoy).
+   - Plano del bus: Piso 1 *premium* (asientos 1–20, ×1.5) y Piso 2 (21–64). Los ocupados aparecen deshabilitados.
+   - Método de pago: tarjeta (validación de datos), Yape/Plin, transferencia o efectivo.
+   - Con 6 o más asientos se aplica el **plan familiar (−10 %)**.
+5. **Mi cuenta** (`/pages/cliente/cuenta.html`): datos personales y historial de reservas con estado y monto. Puedes cancelar una reserva (se liberan tus asientos).
 
-### Reglas importantes para el cliente
+### Reglas para el cliente
 
-- 🎫 Al viajar: presentar el **DNI** en ventanilla **30 minutos antes de la salida** para recoger el ticket.
-- 💵 **Pago en efectivo**: el pago queda como *Pendiente de confirmación* y debe confirmarse en el terminal en un plazo de **6 horas**; pasado ese plazo, los asientos pueden quedar disponibles para otro pasajero.
-- 👨‍👩‍👧‍👦 El descuento familiar es del **10 %** al superar los 5 pasajeros.
+- 🎫 Presenta tu **DNI** en ventanilla **30 minutos antes de la salida** para recoger el ticket.
+- 💵 **Efectivo**: queda *Pendiente de confirmación*; confírmalo en el terminal dentro de **6 horas** o tus asientos quedarán disponibles.
+- 👨‍👩‍👧‍👦 El descuento familiar es del **10 %** con 6 o más pasajeros.
 
-## 4. Panel del personal (`pages/personal/personal.html`)
+## 4. Panel del personal (`/pages/personal/personal.html`)
 
-Ingresa con una cuenta `@personal.pe` (por ejemplo, `carlos@personal.pe` / `andes123`).
+Ingresa con una cuenta `@personal.pe` (p. ej. `carlos@personal.pe` / `andes123`). Secciones:
 
-Secciones del menú lateral:
+- **📊 Resumen**: clientes, reservas, pagos por confirmar, vehículos en ruta.
+- **👥 Clientes**: clientes y sus reservas, con **confirmar pago (efectivo)** para las pendientes.
+- **🎫 Reservas**: todas las reservas con datos del cliente (origen, destino, fecha, asientos, total, estado).
+- **💵 Pagos**: pagos pendientes de confirmar.
+- **📅 Historial**: reservas por año.
+- **🚌 Viajes**: catálogo + viajes creados por el personal (se pueden eliminar). **➕ Nuevo viaje** los crea.
+- **🚍 Vehículos**: estado (salida/llegada/mantenimiento), asignación de viaje/fecha/chofer/azafata, **traslado de sede**, mapa de asientos con ficha de cada pasajero y confirmación de pagos (solo *En terminal*). Permite registrar vehículos.
+- **🧑‍✈️ Conductores y Azafatas**: listado del equipo operativo (edición exclusiva de administración).
+- **🧭 Recorridos y traslados**: bitácora diaria de la flota.
 
-### 📊 Resumen
-Indicadores de clientes registrados, reservas totales, pagos por confirmar y vehículos en ruta.
+## 5. Panel de administración (`/pages/administrador/admin.html`)
 
-### 👥 Clientes
-Lista de clientes registrados. Al abrir cada uno se ven sus reservas y el botón **Confirmar pago (efectivo)** para las que estén pendientes.
+Ingresa con `admin@demo.com` / `admin123`. Secciones:
 
-### 🚌 Viajes
-Muestra el catálogo fijo (todos los días) y los viajes creados por el personal, agrupados por fecha. Los viajes propios se pueden **eliminar**.
+- **📊 Resumen**: estadísticas globales (usuarios por rol, reservas, pagos pendientes, vehículos, viajes, ingresos), reservas de los últimos 7 días, métodos de pago y actividad reciente.
+- **👥 Usuarios**: crear usuarios (cualquier rol), buscar/filtrar, editar rol y contraseña, activar/desactivar. No se puede desactivar al único administrador ni a uno mismo.
+- **🔐 Permisos**: matriz de permisos por rol (el rol `admin` es fijo con acceso total).
+- **📋 Auditoría**: log de operaciones filtrable por módulo.
 
-### ➕ Nuevo viaje
-Formulario para crear un viaje (origen, destino, fecha, hora, duración y precio base). Al crearlo aparece automáticamente en **Rutas y Horarios** para que los clientes reserven.
+## 6. Accesibilidad (todas las páginas)
 
-### 🚍 Vehículos
-Control de la flota:
+Botón flotante ♿ con opciones persistentes en `localStorage`: tamaño de letra, modo noche, máscara de lectura, alto contraste, espaciado, modo lectura, subrayar enlaces, pausar animaciones, lectura en voz alta e idioma ES/EN. También hay botón flotante de **WhatsApp**.
 
-- Cada tarjeta muestra la **sede actual** del bus (📍). El bus solo puede tomar rutas que **salgan de su sede**: el selector de viaje muestra únicamente esas rutas.
-- **Asignar viaje, fecha, conductor y azafata** a cada bus (solo cuando está *En terminal*; el viaje y la tripulación quedan **bloqueados** mientras el bus está *En ruta* o *Llegado*).
-- **Cambiar estado**: *En terminal* → *Marcar salida* (🚀) → *En ruta* → *Marcar llegada* (🏁) → *Llegado* → *Volver al terminal* (🔁). También se puede mandar a **mantenimiento**.
-- Al **marcar llegada**, el bus queda en la ciudad de destino (su sede se actualiza) y ya solo podrá tomar rutas que salgan de ahí.
-- **Traslados**: un bus *En terminal* puede moverse a otra sede con *🔄 Trasladar a sede*. Si tenía un viaje asignado que no sale de la nueva sede, se le desasigna.
-- Al **marcar salida**, si hay pagos en efectivo pendientes para ese viaje, el sistema avisa y pide confirmación antes de permitir la salida.
-- Cada tarjeta de vehículo muestra el **mapa de asientos** con los pasajeros a bordo del día. Tocar un asiento ocupado (naranja) abre la **ficha del cliente** con su correo, teléfono y estado de pago.
-- Los pagos en efectivo se confirman desde la ficha del asiento o desde la lista de pasajeros, **solo mientras el bus está en terminal** (antes de la salida).
-- Permite **registrar vehículos** nuevos (placa y tipo).
+## 7. ¿Cómo se reinician los datos?
 
-### 🧑‍✈️ Conductores y 👩‍✈️ Azafatas
-Lista del equipo operativo (20 miembros) con su ficha (teléfono, DNI y años de experiencia). La edición es exclusiva de la administración.
-
-### 🧭 Recorridos y traslados
-Bitácora de la actividad de la flota **agrupada por día**: cada salida (*recorrido* con su ruta y estado) y cada *traslado* entre sedes (origen → destino), con hora de registro y hora de llegada cuando corresponde.
-
-## 5. Panel de accesibilidad (todas las páginas)
-
-Botón flotante ♿ con opciones que se guardan en `localStorage` y persisten entre visitas:
-
-- Tamaño de letra (A− / A+)
-- Modo noche 🌙
-- Máscara de lectura 📖
-- Alto contraste 🔆
-- Espaciado de texto ↔️
-- Modo lectura 📚
-- Subrayar enlaces 🔗
-- Pausar animaciones ⏸️
-- Lectura en voz alta 🗣️ (Web Speech API)
-- Idioma ES/EN 🌐
-
-También hay un botón flotante de **WhatsApp** 💬 que abre un chat predefinido con la empresa.
-
-## 6. ¿Cómo se reinician los datos de demostración?
-
-El panel del personal siembra clientes, reservas y bitácora de ejemplo solo si no existen. Para empezar desde cero, borra el `localStorage` del sitio en el navegador (o limpia las claves `busEmpresa_*`).
+Ejecuta `npm run db:reset` en `backend/` para recrear la base con los datos de demostración.

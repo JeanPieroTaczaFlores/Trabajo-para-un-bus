@@ -1,0 +1,25 @@
+{
+  "name": "andesbus-backend",
+  "version": "1.0.0",
+  "description": "API REST de Andesbus (plataforma de buses). Frontend estatico servido desde el mismo puerto.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "db:create": "node database/run.js create",
+    "db:reset": "node database/run.js reset"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.5"
+  }
+}

@@ -2,102 +2,116 @@
 
 ## 1. Stack tecnológico
 
-- **Frontend**: HTML5, CSS3 y JavaScript (ES5/ES6, sin transpilación).
-- **Sin framework ni librerías externas**: todo se construye con JavaScript vanilla.
-- **Sin backend**: la aplicación es 100 % de cliente. El directorio `backend/` existe como reserva pero no se usa.
-- **Persistencia**: `localStorage` del navegador. No hay base de datos.
+- **Frontend**: HTML5, CSS3 y JavaScript (ES5/ES6, sin frameworks ni transpilación).
+- **Backend**: Node.js + Express 4. API REST propia, sin librerías externas más allá de:
+  - `mysql2` — conexión a MySQL/MariaDB con *pool* y consultas preparadas.
+  - `bcryptjs` — hash de contraseñas.
+  - `jsonwebtoken` + `cookie-parser` — sesión con JWT en cookie httpOnly.
+  - `express-validator` — validación de entradas.
+  - `dotenv` — variables de entorno.
+- **Base de datos**: MySQL 8 / MariaDB 10.4+ (el MySQL de XAMPP), administrable desde MySQL Workbench.
+- **Persistencia**: los datos viven en MySQL (`andesbus`). No se usa `localStorage` para datos de negocio (solo para preferencias de idioma/accesibilidad y caché ligera de sesión).
 - **Idiomas**: español (es) e inglés (en) mediante un diccionario propio en `js/core/i18n.js`.
 
 ## 2. Estructura de archivos
 
 ```
+backend/                          # API REST + MySQL
+├── server.js                     # Express, cookies, estático y manejo de errores
+├── config/db.js                  # Pool MySQL (variables de entorno)
+├── controllers/                  # auth, perfil, viajes, reservas, clientes, equipo,
+│                                 # vehiculos, viajesPersonal, pagos, bitacora, admin
+├── middleware/
+│   ├── auth.js                   # requireAuth (JWT/cookie), authorize(rol), requirePermisos(código)
+│   ├── validate.js               # Resultado de express-validator
+│   └── error.js                  # Manejador central de errores (JSON)
+├── routes/                       # Un archivo de rutas por módulo
+├── utils/
+│   ├── asyncHandler.js           # Envuelve controladores async
+│   ├── auditor.js                # auditar() -> logs_actividad
+│   └── httpError.js              # badRequest / notFound / forbidden / unauthorized
+└── database/
+    ├── schema.sql                # BD andesbus (11 tablas)
+    ├── seed.sql                  # Datos iniciales de demostración
+    └── run.js                    # Ejecuta schema + seed (npm run db:reset)
+
 frontend/
-├── index.html              # Página de inicio (hero, ventajas, rutas principales)
-├── css/style.css           # Estilos globales, layout, tema claro/oscuro y accesibilidad
-├── assets/logo.svg         # Logo de Andesbus
+├── index.html, css/style.css, assets/logo.svg
 ├── pages/
-│   ├── publica/            # Páginas públicas (sin sesión)
-│   │   ├── nosotros.html   # Misión, visión, flota y valores
-│   │   └── contacto.html   # Formulario de contacto
-│   ├── cliente/            # Páginas del cliente (requieren sesión)
-│   │   ├── rutas.html      # Búsqueda de viajes por origen/destino
-│   │   ├── reservas.html   # Selección de asientos y pago
-│   │   ├── login.html      # Inicio de sesión (cliente o personal)
-│   │   ├── registro.html   # Alta de cuentas de clientes
-│   │   └── cuenta.html     # Datos y reservas del cliente
-│   └── personal/
-│       └── personal.html   # Panel del personal (requiere sesión de personal)
+│   ├── publica/                  # nosotros, contacto
+│   ├── cliente/                  # rutas, reservas, login, registro, cuenta
+│   ├── personal/                 # personal.html
+│   └── administrador/            # admin.html
 └── js/
-    ├── core/               # Núcleo compartido (se carga en todas las páginas)
-    │   ├── datos.js        # VIAJES (catálogo), claves de almacenamiento y precio de asientos
-    │   ├── auth.js         # Gestión de usuarios, sesión y credenciales del personal
-    │   ├── i18n.js         # Diccionario ES/EN y funciones t(), aplicarIdioma()
-    │   └── main.js         # Menú móvil, sesión en navbar, panel de accesibilidad y WhatsApp
-    ├── publica/
-    │   └── contacto.js     # Validación del formulario de contacto
-    ├── cliente/
-    │   ├── rutas.js        # Filtrado y renderizado de viajes
-    │   ├── reservas.js     # Plano del bus, validación y guardado de reservas
-    │   ├── login.js        # Autenticación de clientes y personal
-    │   ├── registro.js     # Validación del formulario de registro
-    │   └── cuenta.js       # Renderizado de la cuenta del cliente
-    └── personal/
-        └── personal.js     # Panel del personal (flota, equipo, viajes, pagos, sedes y bitácora)
+    ├── core/
+    │   ├── api.js                # Cliente HTTP (fetch + cookie), toasts y helpers UI
+    │   ├── auth.js               # Sesión: verificar, cerrar, rutas por rol
+    │   ├── i18n.js               # Diccionario ES/EN y t()
+    │   └── main.js               # Menú móvil, navbar según sesión, accesibilidad
+    ├── cliente/                  # rutas, reservas, login, registro, cuenta
+    ├── personal/                 # Panel del personal (secciones via API)
+    └── administrador/            # Panel de administración (secciones via API)
 ```
 
-## 3. Modelo de datos (`localStorage`)
+## 3. API REST
 
-Todas las claves tienen el prefijo `busEmpresa_`.
+Prefijo: `/api`. El servidor sirve también el frontend estático en el mismo puerto, por lo que no hay CORS. Formato de respuesta: `{ ... }` para éxito y `{ error: { mensaje, codigo? } }` para errores (400/401/403/404/500).
 
-| Clave | Contenido | Ejemplo |
+| Módulo | Endpoints | Acceso |
 |---|---|---|
-| `busEmpresa_usuarios` | Lista de cuentas de clientes | `[{ nombre, correo, telefono, contrasena }]` |
-| `busEmpresa_sesion` | Usuario con sesión activa | `{ nombre, correo, rol: "cliente" \| "personal", ... }` |
-| `busEmpresa_reservas` | Reservas registradas | `[{ id, correoUsuario, viajeId, origen, destino, hora, duracion, fecha, asiento[], pasajeros, total, metodoPago, planFamiliar, estado, fechaReserva }]` |
-| `busEmpresa_vehiculos` | Flota de buses | `[{ placa, tipo, estado, sede, conductor, azafata, viajeId, viajeFecha }]` |
-| `busEmpresa_equipo` | Lista de conductores y azafatas | `[{ nombre, rol }]` |
-| `busEmpresa_actividad` | Bitácora de recorridos y traslados | `[{ id, fecha, hora, tipo: "recorrido" \| "traslado", placa, conductor, origen, destino, estado }]` |
-| `busEmpresa_viajes_personal` | Viajes creados por el personal | `[{ id, origen, destino, fecha, hora, duracion, precio, personal: true }]` |
-| `busEmpresa_idioma` | Idioma activo | `"es"` o `"en"` |
-| `busEmpresa_accesibilidad` | Configuración del panel de accesibilidad | `{ tamano, noche, mascara, contraste, ... }` |
+| Health | `GET /health` | público |
+| Auth | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` | público / sesión |
+| Perfil | `GET/PUT /api/perfil` | sesión |
+| Viajes | `GET /api/viajes`, `GET /api/viajes/:id?fecha=` | público |
+| Reservas | `GET /api/reservas/mias`, `POST /api/reservas`, `DELETE /api/reservas/:id`, `GET /api/reservas/todas` | sesión (todas: permiso `clients.view`) |
+| Clientes | `GET /api/clientes` (+ sus reservas) | permiso `clients.view` |
+| Equipo | `GET/POST /api/equipo` | permiso `vehiculos.manage` |
+| Vehículos | `GET/PUT /api/vehiculos/:id` (estado, viaje, tripulación, traslado), `POST /api/vehiculos` | permiso `vehiculos.manage` |
+| Viajes personal | `GET/POST/DELETE /api/viajes-personal` | permiso `viajes.manage` |
+| Pagos | `GET /api/pagos/pendientes`, `PUT /api/pagos/:id/confirmar` | permiso `pagos.confirmar` |
+| Bitácora | `GET /api/bitacora` | permiso `bitacora.view` |
+| Admin | `GET /api/admin/stats`, `GET/POST /api/admin/usuarios`, `PUT/DELETE /api/admin/usuarios/:id`, `GET/PUT /api/admin/permisos(/:id)`, `GET /api/admin/logs` | rol `admin` |
 
-### Estados de una reserva
+## 4. Autenticación y permisos
 
-- `Confirmada`: pago verificado (tarjeta, Yape/Plin o transferencia se confirman automáticamente; efectivo requiere confirmación del personal).
-- `Pendiente de confirmación`: pago en efectivo aún no verificado en el terminal.
-- `Liberado`: reserva deshabilitada o liberada (ya no ocupa asiento).
+- El login devuelve un **JWT en cookie httpOnly** (`sameSite=lax`); el frontend nunca manipula el token (ver `frontend/js/core/api.js`, que envía `credentials: 'same-origin'`).
+- Middleware `autenticar` (global): si existe cookie válida, carga `req.usuario`.
+- `requireAuth`: exige sesión. `authorize('admin')`: exige rol. `requirePermisos('codigo')`: exige permiso en `rol_permisos`.
+- Catálogo de permisos en `permisos`: `clients.view`, `clients.update`, `viajes.manage`, `vehiculos.manage`, `pagos.confirmar`, `bitacora.view`, `reports.view`, entre otros. El rol `admin` siempre tiene acceso total.
+- Auditoría: operaciones sensibles registran `logs_actividad` (usuario, acción, módulo, detalle, resultado, IP).
 
-### Estados de un vehículo
+## 5. Modelo de datos (MySQL, BD `andesbus`)
 
-- `En terminal` · `En ruta` · `Llegado` · `En mantenimiento`
+| Tabla | Contenido |
+|---|---|
+| `usuarios` | Cuentas con rol `cliente` / `personal` / `admin` y `contrasena_hash` (bcrypt). |
+| `permisos`, `rol_permisos` | Permisos granulares y asignación por rol. |
+| `viajes` | Catálogo de rutas (y viajes creados por personal). |
+| `equipo` | Conductores y azafatas. |
+| `vehiculos` | Flota con estado, sede, viaje y tripulación asignada. |
+| `reservas` | Reservas por viaje y fecha (pasajeros, total, método, estado, plan familiar). |
+| `reserva_asientos` | Asientos de cada reserva (1 fila por asiento, normalizado). |
+| `pagos` | Pago por reserva (el efectivo requiere confirmación del personal). |
+| `bitacora` | Recorridos y traslados de la flota. |
+| `logs_actividad` | Auditoría de operaciones. |
 
-### Sedes de los vehículos
+### Estados
 
-Cada bus tiene una `sede` (una de las 5 ciudades). Solo puede tomar rutas cuyo origen coincida con su sede; el selector de viaje del panel filtra por ella. Al marcar **llegada**, el bus queda *Llegado* con `sede = destino` de la ruta. Para operar desde otra sede debe registrarse un **traslado** (botón *🔄 Trasladar a sede*), que queda anotado en la bitácora.
+- **Reserva**: `Confirmada` · `Pendiente de confirmación` (efectivo sin verificar) · `Liberado` (cancelada; ya no ocupa asiento).
+- **Vehículo**: `En terminal` · `En ruta` · `Llegado` · `En mantenimiento`.
 
-## 4. Catálogo de viajes (`VIAJES` en `js/core/datos.js`)
+### Reglas de negocio clave
 
-Viajes programados de forma fija (12 registros) entre 5 ciudades:
+- Piso 1 (asientos 1–20): `precio base × 1.5`; Piso 2 (21–64): precio base.
+- Plan familiar: −10 % al reservar 6 o más asientos.
+- Efectivo → `Pendiente de confirmación`; los demás métodos se confirman al instante.
+- Un asiento está ocupado si existe una reserva del mismo viaje+fecha con estado ≠ `Liberado` (validado con `SELECT ... FOR UPDATE` dentro de una transacción).
+- Cada bus tiene una `sede`; solo toma rutas cuyo origen coincida con su sede. Al marcar llegada, su sede pasa al destino. Los traslados entre sedes se registran en la bitácora.
 
-| Origen | Destino | Horas de salida | Precio base (Piso 2) |
-|---|---|---|---|
-| Lima | Arequipa | 06:00, 12:00, 20:00 | S/ 89–99 |
-| Lima | Cusco | 07:30, 15:00, 22:30 | S/ 99–109 |
-| Arequipa | Cusco | 08:00, 14:00 | S/ 75 |
-| Lima | Trujillo | 09:00, 21:00 | S/ 55–60 |
-| Cusco | Puno | 10:30 | S/ 45 |
-| Puno | Cusco | 09:00 | S/ 45 |
+## 6. Seguridad
 
-El personal puede añadir viajes nuevos, que se guardan en `busEmpresa_viajes_personal` y se combinan con el catálogo fijo mediante `todosLosViajes()`.
-
-## 5. Precios de asientos
-
-- Piso 1 (asientos 1–20): `precio base × 1.5` (definido por `PISO1_MULTIPLICADOR`).
-- Piso 2 (asientos 21–64): precio base del viaje.
-- Plan familiar: descuento del 10 % (`PLAN_FAMILIAR_DESCUENTO`) cuando se seleccionan 6 o más asientos.
-
-## 6. Seguridad y limitaciones
-
-- Las credenciales se validan en el cliente y las contraseñas se guardan **en texto plano** en `localStorage`. Es una aplicación de demostración/estudios, no apta para producción.
-- Los correos que terminan en `@personal.pe` están reservados al personal: no se permite registrarlos como clientes (`registro.js`).
-- No hay servidor, base de datos ni pasarela de pagos real: los pagos se simulan localmente.
+- Contraseñas con hash bcrypt (nunca en texto plano).
+- Sesión con JWT en cookie httpOnly (no accesible desde JS) + `sameSite`.
+- Validación de entrada con `express-validator` y consultas preparadas (SQL injection mitigado).
+- Protección de endpoints por rol y permiso; el cliente no decide su propio rol.
+- Sin secretos en el repositorio: configuración vía `backend/.env` (ver `backend/.env.example`).
