@@ -1,19 +1,29 @@
 # Guía de uso
 
-## 1. Puesta en marcha
+Guía rápida. Para el manual completo (paso a paso por rol) ver [MANUAL_DE_USUARIO.md](MANUAL_DE_USUARIO.md). Para publicar el proyecto, ver [DESPLIEGUE.md](DESPLIEGUE.md).
 
-Requisitos: **Node.js 18+** y **MySQL/MariaDB** (el MySQL de XAMPP, administrable con MySQL Workbench).
+## 1. Puesta en marcha (desarrollo local)
+
+Requisitos: **Node.js 18+** y una base **PostgreSQL** (local o un proyecto en [Supabase](https://supabase.com)).
 
 ```bash
 cd backend
 npm install
-npm run db:reset     # crea la base andesbus (schema + seed)
+npm run db:reset     # crea el esquema y carga los datos de demostración
 node server.js       # levanta API + frontend en http://localhost:3001
 ```
 
-Si tu MySQL no es `root` sin contraseña en el puerto 3306, copia `backend/.env.example` a `backend/.env` y ajusta las variables.
+Antes de `db:reset`, copia `backend/.env.example` a `backend/.env` y completa `DATABASE_URL` y `JWT_SECRET`.
 
-## 2. Credenciales de acceso (demo)
+## 2. Puesta en marcha (producción)
+
+El proyecto ya está publicado en **Vercel** y usa **Supabase** como base de datos:
+
+- **URL del sitio**: `https://trabajo-para-un-bus.vercel.app`
+- **API**: `https://trabajo-para-un-bus.vercel.app/api/health`
+- Cualquier cambio que se suba a la rama `main` de GitHub se despliega automáticamente.
+
+## 3. Credenciales de acceso (demo)
 
 | Rol | Nombre | Correo | Contraseña |
 |---|---|---|---|
@@ -24,7 +34,7 @@ Si tu MySQL no es `root` sin contraseña en el puerto 3306, copia `backend/.env.
 
 > Los correos `@personal.pe` son exclusivos del personal: el registro público de clientes los rechaza.
 
-## 3. Flujo del cliente
+## 4. Flujo del cliente
 
 1. **Registro** (`/pages/cliente/registro.html`): nombre completo, correo válido, teléfono (7–9 dígitos) y contraseña (mínimo 6 caracteres).
 2. **Inicio de sesión** (`/pages/cliente/login.html`): según el rol, la sesión redirige a la cuenta, al panel personal o al panel de administración.
@@ -42,7 +52,7 @@ Si tu MySQL no es `root` sin contraseña en el puerto 3306, copia `backend/.env.
 - 💵 **Efectivo**: queda *Pendiente de confirmación*; confírmalo en el terminal dentro de **6 horas** o tus asientos quedarán disponibles.
 - 👨‍👩‍👧‍👦 El descuento familiar es del **10 %** con 6 o más pasajeros.
 
-## 4. Panel del personal (`/pages/personal/personal.html`)
+## 5. Panel del personal (`/pages/personal/personal.html`)
 
 Ingresa con una cuenta `@personal.pe` (p. ej. `carlos@personal.pe` / `andes123`). Secciones:
 
@@ -56,7 +66,7 @@ Ingresa con una cuenta `@personal.pe` (p. ej. `carlos@personal.pe` / `andes123`)
 - **🧑‍✈️ Conductores y Azafatas**: listado del equipo operativo (edición exclusiva de administración).
 - **🧭 Recorridos y traslados**: bitácora diaria de la flota.
 
-## 5. Panel de administración (`/pages/administrador/admin.html`)
+## 6. Panel de administración (`/pages/administrador/admin.html`)
 
 Ingresa con `admin@demo.com` / `admin123`. Secciones:
 
@@ -65,10 +75,12 @@ Ingresa con `admin@demo.com` / `admin123`. Secciones:
 - **🔐 Permisos**: matriz de permisos por rol (el rol `admin` es fijo con acceso total).
 - **📋 Auditoría**: log de operaciones filtrable por módulo.
 
-## 6. Accesibilidad (todas las páginas)
+## 7. Accesibilidad (todas las páginas)
 
 Botón flotante ♿ con opciones persistentes en `localStorage`: tamaño de letra, modo noche, máscara de lectura, alto contraste, espaciado, modo lectura, subrayar enlaces, pausar animaciones, lectura en voz alta e idioma ES/EN. También hay botón flotante de **WhatsApp**.
 
-## 7. ¿Cómo se reinician los datos?
+## 8. ¿Cómo se reinician los datos?
 
-Ejecuta `npm run db:reset` en `backend/` para recrear la base con los datos de demostración.
+En local: ejecuta `npm run db:reset` en `backend/` para recrear la base con los datos de demostración.
+
+En producción (Supabase): en el **SQL Editor** del proyecto, borra las tablas (o ejecuta los scripts de nuevo) y vuelve a correr `schema.sql` y `seed.sql`. O crea un nuevo proyecto de Supabase y repite el [despliegue](DESPLIEGUE.md).

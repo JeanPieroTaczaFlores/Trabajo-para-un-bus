@@ -1,15 +1,16 @@
-# Base de datos de Andesbus (MySQL / MariaDB)
+# Base de datos de Andesbus (PostgreSQL / Supabase)
 
-Esquema y datos iniciales de la plataforma. Compatible con **MySQL 8** y
-**MariaDB 10.4+** (por ejemplo, el MySQL que incluye XAMPP) y administrable
-desde **MySQL Workbench 8.0**.
+Esquema y datos iniciales de la plataforma. Compatible con **PostgreSQL 15+**.
+En producción la base es gestionada por **Supabase**; en desarrollo puedes usar
+cualquier PostgreSQL local (p. ej. el instalado con Postgres.app, el paquete de
+tu distro, Docker, o una instancia en la nube).
 
 ## Archivos
 
 | Archivo | Contenido |
 |---|---|
-| `schema.sql` | Creación de la base de datos `andesbus`, las 11 tablas, claves primarias, foráneas, índices y restricciones. |
-| `seed.sql` | Datos iniciales: permisos por rol, administrador, personal, clientes, viajes, equipo, vehículos, reservas, pagos, bitácora y logs de ejemplo. |
+| `schema.sql` | Creación de las 11 tablas, claves primarias, foráneas, índices, restricciones `CHECK` y el trigger de `actualizado_en`. |
+| `seed.sql` | Datos iniciales: permisos por rol, administrador, personal, clientes, viajes, equipo, vehículos, reservas, pagos, bitácora y logs de ejemplo. Incluye un bloque `setval` para sincronizar las secuencias `SERIAL`. |
 | `run.js` | Script Node que ejecuta `schema.sql` y `seed.sql` usando las variables de entorno. `npm run db:reset` lo invoca. |
 
 ## Tablas
@@ -25,7 +26,7 @@ desde **MySQL Workbench 8.0**.
 - `bitacora` — recorridos y traslados de la flota.
 - `logs_actividad` — auditoría de operaciones (usuario, acción, módulo, resultado, IP).
 
-## Usuarios de prueba (solo desarrollo)
+## Usuarios de prueba (solo desarrollo/demo)
 
 | Rol | Correo | Contraseña |
 |---|---|---|
@@ -36,24 +37,35 @@ desde **MySQL Workbench 8.0**.
 
 ## Cómo crear la base de datos
 
-### Opción A: desde la línea de comandos
+### Opción A: producción en Supabase (SQL Editor)
 
-```bash
-cd backend
-mysql -u root -p < database/schema.sql
-mysql -u root -p andesbus < database/seed.sql
-```
+1. Crea un proyecto en [Supabase](https://supabase.com).
+2. Menú lateral → **SQL Editor** → **New query**.
+3. Pega el contenido de `schema.sql` → **Run**.
+4. Nueva query con el contenido de `seed.sql` → **Run**.
+5. Verifica en **Table Editor** que las tablas existen con datos.
 
 ### Opción B: con el script npm (usa `.env`)
 
 ```bash
 cd backend
 npm install
-npm run db:reset   # recrea la base y carga schema + seed
+npm run db:reset   # recrea el esquema y carga schema + seed
 ```
 
-### Opción C: desde MySQL Workbench
+`run.js` lee `DATABASE_URL` (o `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USER`, `DATABASE_PASSWORD`, `DATABASE_NAME`) desde `backend/.env`.
 
-1. Abre `backend/database/schema.sql` en Workbench y ejecútalo (⏵).
-2. Abre `backend/database/seed.sql` y ejecútalo.
-3. Verifica con `SELECT * FROM andesbus.usuarios;`.
+### Opción C: con un cliente SQL (psql, DBeaver, pgAdmin)
+
+```bash
+psql "postgresql://postgres:clave@localhost:5432/andesbus" -f backend/database/schema.sql
+psql "postgresql://postgres:clave@localhost:5432/andesbus" -f backend/database/seed.sql
+```
+
+## Variables de entorno
+
+| Variable | Descripción |
+|---|---|
+| `DATABASE_URL` | Cadena de conexión completa (`postgresql://usuario:clave@host:puerto/bd`). En Supabase, para Vercel se usa el **transaction pooler** (puerto `6543`). |
+| `PGSSL` | `true` en producción (Supabase exige SSL). |
+| `DATABASE_HOST/PORT/USER/PASSWORD/NAME` | Alternativa a `DATABASE_URL` para conexión por partes (solo local). |
