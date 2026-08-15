@@ -128,7 +128,7 @@ const recuperarContrasena = asyncHandler(async (req, res) => {
   const minutos = Number(process.env.RESET_TOKEN_MINUTOS || 30);
 
   await pool.query(
-    'UPDATE usuarios SET reset_token = ?, reset_expiracion = DATE_ADD(NOW(), INTERVAL ? MINUTE) WHERE id = ?',
+    `UPDATE usuarios SET reset_token = ?, reset_expiracion = NOW() + (? * INTERVAL '1 minute') WHERE id = ?`,
     [hash, minutos, filas[0].id]
   );
 

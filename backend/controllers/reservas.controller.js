@@ -40,7 +40,7 @@ function mapearReserva(f) {
 const misReservas = asyncHandler(async (req, res) => {
   const [filas] = await pool.query(
     `SELECT r.*, v.origen, v.destino, v.hora,
-            (SELECT GROUP_CONCAT(ra.asiento ORDER BY ra.asiento SEPARATOR ',')
+            (SELECT string_agg(ra.asiento::text, ',' ORDER BY ra.asiento)
                FROM reserva_asientos ra WHERE ra.reserva_id = r.id) AS asientos
        FROM reservas r
        JOIN viajes v ON v.id = r.viaje_id
@@ -55,7 +55,7 @@ const misReservas = asyncHandler(async (req, res) => {
 const todas = asyncHandler(async (req, res) => {
   const [filas] = await pool.query(
     `SELECT r.*, v.origen, v.destino, v.hora, u.nombre AS cliente, u.correo AS correo_cliente,
-            (SELECT GROUP_CONCAT(ra.asiento ORDER BY ra.asiento SEPARATOR ',')
+            (SELECT string_agg(ra.asiento::text, ',' ORDER BY ra.asiento)
                FROM reserva_asientos ra WHERE ra.reserva_id = r.id) AS asientos
        FROM reservas r
        JOIN viajes v ON v.id = r.viaje_id
@@ -133,7 +133,7 @@ const crearReserva = asyncHandler(async (req, res) => {
 
     const [filas] = await pool.query(
       `SELECT r.*, v.origen, v.destino, v.hora,
-              (SELECT GROUP_CONCAT(ra.asiento ORDER BY ra.asiento SEPARATOR ',')
+              (SELECT string_agg(ra.asiento::text, ',' ORDER BY ra.asiento)
                  FROM reserva_asientos ra WHERE ra.reserva_id = r.id) AS asientos
          FROM reservas r JOIN viajes v ON v.id = r.viaje_id WHERE r.id = ?`,
       [resultado.insertId]

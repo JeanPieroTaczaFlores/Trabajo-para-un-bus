@@ -1,41 +1,47 @@
 /* eslint-disable no-console */
 /**
- * Ejecuta schema.sql + seed.sql sobre la base configurada en .env
- * Uso: node database/run.js [create|reset]   (default: create)
+ * Ejecuta schema.sql + seed.sql sobre PostgreSQL (p. ej. Supabase).
+ * Requiere la variable DATABASE_URL (en .env o en el entorno).
+ * Uso: node database/run.js [create|reset]
  */
 const fs = require('fs');
 const path = require('path');
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
-
-const config = {
-  host: process.env.DATABASE_HOST || '127.0.0.1',
-  port: Number(process.env.DATABASE_PORT || 3306),
-  user: process.env.DATABASE_USER || 'root',
-  password: process.env.DATABASE_PASSWORD || '',
-  multipleStatements: true,
-};
 
 function leer(archivo) {
   return fs.readFileSync(path.join(__dirname, archivo), 'utf8');
 }
 
+function conectar() {
+  const config = process.env.DATABASE_URL
+    ? { connectionString: process.env.DATABASE_URL }
+    : {
+        host: process.env.DATABASE_HOST || '127.0.0.1',
+        port: Number(process.env.DATABASE_PORT || 5432),
+        user: process.env.DATABASE_USER || 'postgres',
+        password: process.env.DATABASE_PASSWORD || '',
+        database: process.env.DATABASE_NAME || 'andesbus',
+      };
+  if (process.env.PGSSL === 'true') {
+    config.ssl = { rejectUnauthorized: false };
+  }
+  return new Pool(config);
+}
+
 async function main() {
   const modo = process.argv[2] || 'create';
-  if (modo === 'reset') {
-    // Conecta sin DB para poder soltar y recrear la base
-    const base = await mysql.createConnection(config);
-    await base.query(`DROP DATABASE IF EXISTS ${process.env.DATABASE_NAME || 'andesbus'}`);
-    await base.end();
+  const pool = conectar();
+  try {
+    console.log(`[${modo}] Ejecutando schema.sql ...`);
+    // Sin parámetros -> protocolo simple de pg (permite múltiples sentencias)
+    await pool.query(leer('schema.sql'));
+    console.log(`[${modo}] Ejecutando seed.sql ...`);
+    await pool.query(leer('seed.sql'));
+    console.log('Base de datos PostgreSQL lista.');
+  } finally {
+    await pool.end();
   }
-
-  const conn = await mysql.createConnection(config);
-  console.log('Ejecutando schema.sql ...');
-  await conn.query(leer('schema.sql'));
-  console.log('Ejecutando seed.sql ...');
-  await conn.query(leer('seed.sql'));
-  await conn.end();
-  console.log(`Base de datos "${process.env.DATABASE_NAME || 'andesbus'}" lista.`);
 }
 
 main().catch((err) => {

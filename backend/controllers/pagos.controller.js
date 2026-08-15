@@ -10,7 +10,7 @@ const pendientes = asyncHandler(async (req, res) => {
             r.id AS reserva_id, r.fecha, r.estado,
             v.origen, v.destino, v.hora,
             u.nombre AS cliente, u.correo, u.telefono,
-            (SELECT GROUP_CONCAT(ra.asiento ORDER BY ra.asiento SEPARATOR ',')
+            (SELECT string_agg(ra.asiento::text, ',' ORDER BY ra.asiento)
                FROM reserva_asientos ra WHERE ra.reserva_id = r.id) AS asientos
        FROM pagos p
        JOIN reservas r ON r.id = p.reserva_id

@@ -114,7 +114,7 @@ const cambiarEstado = asyncHandler(async (req, res) => {
     nuevoEstado = 'En ruta';
     await pool.query(
       `INSERT INTO bitacora (tipo, placa, conductor, origen, destino, estado, fecha, hora_salida)
-       VALUES ('recorrido', ?, ?, ?, ?, 'En ruta', CURDATE(), CURTIME())`,
+       VALUES ('recorrido', ?, ?, ?, ?, 'En ruta', CURRENT_DATE, CURRENT_TIME)`,
       [vehiculo.placa, vehiculo.conductor_id ? (await buscarNombre(vehiculo.conductor_id)) : null,
        viaje.length ? viaje[0].origen : vehiculo.sede, viaje.length ? viaje[0].destino : '']
     );
@@ -123,9 +123,10 @@ const cambiarEstado = asyncHandler(async (req, res) => {
     nuevoEstado = 'Llegado';
     if (viaje.length) nuevaSede = viaje[0].destino;
     await pool.query(
-      `UPDATE bitacora SET estado = 'Completado', hora_llegada = CURTIME()
-        WHERE tipo = 'recorrido' AND placa = ? AND estado = 'En ruta'
-        ORDER BY id DESC LIMIT 1`,
+      `UPDATE bitacora SET estado = 'Completado', hora_llegada = CURRENT_TIME
+        WHERE id = (SELECT id FROM bitacora
+                     WHERE tipo = 'recorrido' AND placa = ? AND estado = 'En ruta'
+                     ORDER BY id DESC LIMIT 1)`,
       [vehiculo.placa]
     );
   } else if (accion === 'mantenimiento') {
@@ -146,7 +147,7 @@ const cambiarEstado = asyncHandler(async (req, res) => {
     }
     await pool.query(
       `INSERT INTO bitacora (tipo, placa, conductor, origen, destino, fecha)
-       VALUES ('traslado', ?, ?, ?, ?, CURDATE())`,
+       VALUES ('traslado', ?, ?, ?, ?, CURRENT_DATE)`,
       [vehiculo.placa, vehiculo.conductor_id ? (await buscarNombre(vehiculo.conductor_id)) : null, vehiculo.sede, sede]
     );
   } else {
@@ -173,9 +174,9 @@ const pasajeros = asyncHandler(async (req, res) => {
   const [reservas] = await pool.query(
     `SELECT r.id, r.fecha, r.estado, r.metodo_pago, r.pasajeros,
             u.nombre, u.correo, u.telefono,
-            (SELECT GROUP_CONCAT(ra.asiento ORDER BY ra.asiento SEPARATOR ',')
+            (SELECT string_agg(ra.asiento::text, ',' ORDER BY ra.asiento)
                FROM reserva_asientos ra WHERE ra.reserva_id = r.id) AS asientos,
-            (SELECT GROUP_CONCAT(ra.piso ORDER BY ra.asiento SEPARATOR ',')
+            (SELECT string_agg(ra.piso::text, ',' ORDER BY ra.asiento)
                FROM reserva_asientos ra WHERE ra.reserva_id = r.id) AS pisos
        FROM reservas r
        JOIN usuarios u ON u.id = r.usuario_id

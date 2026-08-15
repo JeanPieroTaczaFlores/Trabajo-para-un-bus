@@ -1,5 +1,5 @@
 -- ============================================================
--- ANDESBUS - Datos iniciales (seed)
+-- ANDESBUS - Datos iniciales (seed) para PostgreSQL
 -- Usuarios de prueba (SOLO desarrollo):
 --   admin@demo.com     / admin123     -> rol admin
 --   carlos@personal.pe / andes123     -> rol personal
@@ -7,8 +7,6 @@
 --   luis.mendoza@gmail.com / cliente123 -> rol cliente
 -- Las contrasenas se almacenan con hash bcrypt (nunca en claro).
 -- ============================================================
-
-USE andesbus;
 
 -- ------------------------------------------------------------
 -- PERMISOS
@@ -116,14 +114,14 @@ INSERT INTO vehiculos (id, placa, tipo, estado, sede, viaje_id, conductor_id, az
 -- RESERVAS de demostracion (fecha de hoy y proximos dias)
 -- ------------------------------------------------------------
 INSERT INTO reservas (id, usuario_id, viaje_id, fecha, pasajeros, total, metodo_pago, estado, plan_familiar, confirmado_por) VALUES
-  (1, 4,  1, CURDATE(), 2, 267.00, 'tarjeta',     'Confirmada', 0, 1),
-  (2, 5,  1, CURDATE(), 1, 133.50, 'efectivo',    'Pendiente de confirmación', 0, NULL),
-  (3, 6,  4, CURDATE(), 2, 297.00, 'tarjeta',     'Confirmada', 0, 1),
-  (4, 7,  4, CURDATE(), 1, 99.00,  'yape',        'Confirmada', 0, 1),
-  (5, 8,  9, CURDATE(), 1, 55.00,  'efectivo',    'Pendiente de confirmación', 0, NULL),
-  (6, 9,  2, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1, 133.50, 'transferencia', 'Confirmada', 0, 1),
-  (7, 10, 7, DATE_ADD(CURDATE(), INTERVAL 1 DAY), 2, 150.00, 'efectivo', 'Pendiente de confirmación', 0, NULL),
-  (8, 11, 5, DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1, 99.00,  'tarjeta', 'Confirmada', 0, 1);
+  (1, 4,  1, CURRENT_DATE, 2, 267.00, 'tarjeta',     'Confirmada', 0, 1),
+  (2, 5,  1, CURRENT_DATE, 1, 133.50, 'efectivo',    'Pendiente de confirmación', 0, NULL),
+  (3, 6,  4, CURRENT_DATE, 2, 297.00, 'tarjeta',     'Confirmada', 0, 1),
+  (4, 7,  4, CURRENT_DATE, 1, 99.00,  'yape',        'Confirmada', 0, 1),
+  (5, 8,  9, CURRENT_DATE, 1, 55.00,  'efectivo',    'Pendiente de confirmación', 0, NULL),
+  (6, 9,  2, CURRENT_DATE + 2, 1, 133.50, 'transferencia', 'Confirmada', 0, 1),
+  (7, 10, 7, CURRENT_DATE + 1, 2, 150.00, 'efectivo', 'Pendiente de confirmación', 0, NULL),
+  (8, 11, 5, CURRENT_DATE + 3, 1, 99.00,  'tarjeta', 'Confirmada', 0, 1);
 
 INSERT INTO reserva_asientos (reserva_id, asiento, piso) VALUES
   (1, 1, 1), (1, 2, 1),
@@ -149,12 +147,12 @@ INSERT INTO pagos (reserva_id, metodo, monto, estado, confirmado_por) VALUES
 -- BITACORA de recorridos y traslados (ejemplos)
 -- ------------------------------------------------------------
 INSERT INTO bitacora (tipo, placa, conductor, origen, destino, estado, fecha, hora_salida) VALUES
-  ('recorrido', 'ABC-123', 'Juan Pérez',    'Lima',     'Arequipa', 'En ruta',  CURDATE(), '06:00'),
-  ('recorrido', 'GHI-789', 'Luis Gómez',    'Lima',     'Trujillo', 'En ruta',  CURDATE(), '09:00'),
-  ('recorrido', 'STU-901', 'Miguel Rojas',  'Arequipa', 'Cusco',    'En ruta',  CURDATE(), '08:00'),
-  ('traslado',  'MNO-345', NULL,            'Lima',     'Arequipa', NULL,       CURDATE(), NULL),
-  ('traslado',  'VWX-234', NULL,            'Lima',     'Cusco',    NULL,       CURDATE(), NULL),
-  ('traslado',  'YZA-567', NULL,            'Lima',     'Puno',     NULL,       CURDATE(), NULL);
+  ('recorrido', 'ABC-123', 'Juan Pérez',    'Lima',     'Arequipa', 'En ruta',  CURRENT_DATE, '06:00'),
+  ('recorrido', 'GHI-789', 'Luis Gómez',    'Lima',     'Trujillo', 'En ruta',  CURRENT_DATE, '09:00'),
+  ('recorrido', 'STU-901', 'Miguel Rojas',  'Arequipa', 'Cusco',    'En ruta',  CURRENT_DATE, '08:00'),
+  ('traslado',  'MNO-345', NULL,            'Lima',     'Arequipa', NULL,       CURRENT_DATE, NULL),
+  ('traslado',  'VWX-234', NULL,            'Lima',     'Cusco',    NULL,       CURRENT_DATE, NULL),
+  ('traslado',  'YZA-567', NULL,            'Lima',     'Puno',     NULL,       CURRENT_DATE, NULL);
 
 -- ------------------------------------------------------------
 -- LOGS DE AUDITORIA (ejemplos)
@@ -164,3 +162,13 @@ INSERT INTO logs_actividad (usuario_id, usuario_nombre, accion, modulo, detalle,
   (2, 'Carlos Ramírez', 'Inició sesión', 'auth', NULL, 'Correcto', '127.0.0.1'),
   (1, 'Administrador Andesbus', 'Creó usuario', 'usuarios', 'Creó el usuario "Kiara Llanos"', 'Correcto', '127.0.0.1'),
   (2, 'Carlos Ramírez', 'Confirmó pago', 'pagos', 'Confirmó pago en efectivo de la reserva #2', 'Correcto', '127.0.0.1');
+
+-- ------------------------------------------------------------
+-- Sincronizar secuencias tras insertar IDs explícitos
+-- ------------------------------------------------------------
+SELECT setval(pg_get_serial_sequence('permisos', 'id'), (SELECT MAX(id) FROM permisos));
+SELECT setval(pg_get_serial_sequence('usuarios', 'id'), (SELECT MAX(id) FROM usuarios));
+SELECT setval(pg_get_serial_sequence('viajes', 'id'), (SELECT MAX(id) FROM viajes));
+SELECT setval(pg_get_serial_sequence('equipo', 'id'), (SELECT MAX(id) FROM equipo));
+SELECT setval(pg_get_serial_sequence('vehiculos', 'id'), (SELECT MAX(id) FROM vehiculos));
+SELECT setval(pg_get_serial_sequence('reservas', 'id'), (SELECT MAX(id) FROM reservas));

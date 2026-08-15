@@ -39,7 +39,7 @@ const stats = asyncHandler(async (req, res) => {
   const [reservas7d] = await pool.query(`
     SELECT DATE(fecha_reserva) AS dia, COUNT(*) AS total
       FROM reservas
-     WHERE fecha_reserva >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+     WHERE fecha_reserva >= CURRENT_DATE - 6
      GROUP BY DATE(fecha_reserva)
      ORDER BY dia
   `);
@@ -212,7 +212,10 @@ const actualizarPermiso = asyncHandler(async (req, res) => {
   if (!existe.length) throw notFound('El permiso no existe.');
 
   if (activo) {
-    await pool.query('INSERT IGNORE INTO rol_permisos (rol, permiso_id) VALUES (?, ?)', [rol, id]);
+    await pool.query(
+      'INSERT INTO rol_permisos (rol, permiso_id) VALUES (?, ?) ON CONFLICT (rol, permiso_id) DO NOTHING',
+      [rol, id]
+    );
   } else {
     await pool.query('DELETE FROM rol_permisos WHERE rol = ? AND permiso_id = ?', [rol, id]);
   }
